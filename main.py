@@ -1,7 +1,8 @@
 import re
 import os
+import sys
 import time
-from llama_index.llms import Ollama, LLM
+# from llama_index.llms import Ollama, LLM
 
 from pydantic import BaseModel
 from agent import TeaAgent
@@ -10,12 +11,14 @@ from watcher import FileWatcher
 import shutil
 import json
 from rag import index_project
+from langchain_community.llms.ollama import Ollama
+from langchain_core.language_models.llms import BaseLLM
 
 from typing import Any, Dict, Optional
 watcher: FileWatcher = None
 
 class Main:
-    def __init__(self, index=None, llm: LLM = None):
+    def __init__(self, index=None, llm: BaseLLM = None):
         # TODO: Take in a config file
         self.tea_agent = TeaAgent(index=index, llm=llm)
         self.config = {
@@ -29,10 +32,10 @@ class Main:
         # else:
         #     raise Exception("Index not provided")
         
-        # if llm:
-        #     self.llm = llm
-        # else:
-        #     raise Exception("LLM not provided")
+        if llm:
+            self.llm = llm
+        else:
+            raise Exception("LLM not provided")
     
     def run(self):
         print("Starting...")
@@ -152,8 +155,14 @@ if __name__ == "__main__":
     if watcher:
         watcher.stop()
     print("Indexing project...")
+
+    # Check for argument passed when running this file for the model name
+    model_name = sys.argv[1] if len(sys.argv) > 1 else "deepseek-coder:6.7b-instruct"
+
+    print(f"Using model: {model_name}")
+    llm = Ollama(model=model_name, temperature=0)
     # llm = Ollama(model="codellama:7b-instruct", request_timeout=30, temperature=0)
     # index = index_project("/Users/mason/Code/maestro", "./index", llm=llm)
 
-    main = Main()
+    main = Main(llm=llm)
     main.run()

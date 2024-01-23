@@ -2,9 +2,10 @@
 from component_creation import create_tea_component, create_loading_component, create_steep_component
 from helpers import FileContext, SteepContext, set_import
 from prompt import write_component_prompt
-from llama_index.llms import LLM, ChatMessage
 from llama_index import VectorStoreIndex
 from langchain_community.llms.ollama import Ollama
+from langchain_core.language_models.llms import BaseLLM
+
 import os
 
 
@@ -15,7 +16,7 @@ class TeaAgent():
         2. Steep - steep the tea into a WIP component, this is temporary until the user pours it
         3. Sweeten - sweeten an already made component, this is temporary until the user pours it (Later??)
     """
-    def __init__(self, llm: LLM = None, index: VectorStoreIndex =None):
+    def __init__(self, llm: BaseLLM = None, index: VectorStoreIndex =None):
         self.llm = llm
         self.index = index
 
@@ -63,9 +64,8 @@ class TeaAgent():
         # Now the component is brewing, this is where we ask the llm for code
         print("Creating component... This could take a while.")
 
-        llm = Ollama(model="deepseek-coder:6.7b-instruct", temperature=0)
         response = ""
-        for chunk in llm.stream(prompt):
+        for chunk in self.llm.stream(prompt):
             print(chunk, end="", flush=True)
             response += chunk
         # chat_engine = self.index.as_chat_engine()
@@ -77,7 +77,7 @@ class TeaAgent():
 
         # If the first 3 letters are "vue" then we need to remove them (It adds it to type the markdown)
         if code[:3] == "vue":
-            code = code[3:]
+            code = code[4:] # Also remove newline
 
         # Once we get the response, we want to write it to the file
         with open(ctx.steep_path, "w") as file:

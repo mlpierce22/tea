@@ -9,7 +9,7 @@ fi
 
 # Define your tasks here. Each task should be a function
 run_watcher() {
-    python main.py
+    python main.py $1
 }
 
 run_ollama() {
