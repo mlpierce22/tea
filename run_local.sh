@@ -11,7 +11,7 @@ fi
 # Define your tasks here. Each task should be a function
 run_watcher() {
     echo "Running watcher"
-    python main.py
+    python app/main.py
 }
 
 run_ollama() {
