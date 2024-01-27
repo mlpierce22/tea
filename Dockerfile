@@ -14,6 +14,8 @@ COPY . .
 # Install python dependencies
 RUN pip3 install -r requirements.txt
 
+ENV ROOT_DIRECTORY="/mount"
+
 ENTRYPOINT ["/bin/bash"]
 
 CMD ["run_local.sh"]
