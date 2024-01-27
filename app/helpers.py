@@ -4,7 +4,11 @@ import re
 from typing import Any, Dict, List, Literal, Union
 from pydantic import BaseModel
 from pathlib import Path
+import logging
 
+file_log = os.getenv("FILE_LOG_PATH", None)
+logging.basicConfig(filename=file_log, level=logging.INFO)
+log = logging.getLogger("Tea")
 
 class Packages(BaseModel):
     dependencies: Dict[str, str] | None

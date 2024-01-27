@@ -3,7 +3,7 @@ import sys
 import time
 from pathlib import Path
 from agent import TeaAgent
-from helpers import FileContext, Packages, SteepContext, TeaTag, extract_tag, get_packages
+from helpers import FileContext, Packages, SteepContext, TeaTag, extract_tag, get_packages, log
 from watcher import FileWatcher
 from langchain_community.llms.ollama import Ollama
 from langchain_core.language_models.llms import BaseLLM
@@ -23,7 +23,7 @@ class Main:
         self.ignore_patterns = config["ignore_patterns"]
     
     def run(self):
-        print("Starting...")
+        log.info("Starting...")
 
         watcher = FileWatcher(
             root_directory=self.root_directory,
@@ -37,7 +37,7 @@ class Main:
             while True:
                 time.sleep(1)
                 if prev_inc != watcher.last_modified_file_inc:
-                    print(f"File changed: {watcher.last_modified_file}")
+                    log.info(f"File changed: {watcher.last_modified_file}")
 
                     self.process_file(
                         watcher.last_modified_file,
@@ -46,7 +46,7 @@ class Main:
                     time.sleep(1)
                     prev_inc = watcher.last_modified_file_inc
         except KeyboardInterrupt:
-            print("Stopping...")
+            log.info("Stopping...")
             watcher.stop()
             exit()
 
@@ -76,10 +76,10 @@ class Main:
         pour = tea_tag.model_dump().get("props", {}).get("pour", None)
 
         if pour:
-            print(f"Pouring {pour} component...")
+            log.info(f"Pouring {pour} component...")
             self.tea_agent.pour(component_name=pour, ctx=steep_ctx)
         else:
-            print("Steeping new component...")
+            log.info("Steeping new component...")
             self.tea_agent.steep(ctx=steep_ctx)
 
     def process_file(self, file_path, root_directory=None):
@@ -105,7 +105,7 @@ class Main:
         # Extract and process <Tea> tag
         tea_tag = extract_tag(file_content, tag="Tea")
         if tea_tag:
-            print(f"<Tea> tag found in {file_path}")
+            log.info(f"<Tea> tag found in {file_path}")
             self.process_tea_tag(tea_tag=tea_tag, ctx=ctx)
             return
 

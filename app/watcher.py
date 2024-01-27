@@ -5,11 +5,12 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import igittigitt
 from itertools import islice
+from helpers import log
 
 class FileWatcher:
     def __init__(self, root_directory, watch_patterns=None, ignore_patterns=None):
         self.base_path = root_directory
-        print("Watching directory:")
+        log.info("Watching directory:")
         display_content(self.base_path)
         self.watch_patterns = watch_patterns
         self.ignore_patterns = ignore_patterns + [".git/*"]
@@ -24,9 +25,9 @@ class FileWatcher:
             self.gitignore = None  # Set to None if no .gitignore file exists
 
         if self.watch_patterns:
-            print("Watch patterns:", self.watch_patterns)
+            log.info("Watch patterns:", self.watch_patterns)
         else:
-            print("Ignore patterns:", self.ignore_patterns)
+            log.info("Ignore patterns:", self.ignore_patterns)
 
         self.observer = Observer()
         self.event_handler = FileSystemEventHandler()
@@ -66,7 +67,7 @@ class FileWatcher:
 
     def _on_modified(self, event):
         if not self._is_ignored(event.src_path):
-            print("Modified:", event.src_path)
+            log.info("Modified:", event.src_path)
             self.last_modified_file = event.src_path
             self.last_modified_file_inc += 1
 
@@ -90,6 +91,6 @@ def display_content(dir_path, n=10):
     if len(folders_and_files) == 0:
         raise Exception("No files found in the path")
     for path in islice(folders_and_files, n):
-        print(f"  {['📄', '📁'][+path.is_dir()]} {path.relative_to(dir_path)}")
+        log.info(f"  {['📄', '📁'][+path.is_dir()]} {path.relative_to(dir_path)}")
     if len(folders_and_files) > n:
-        print("  ...")
+        log.info("  ...")

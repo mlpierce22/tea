@@ -2,12 +2,13 @@
 from pathlib import Path
 import shutil
 from component_creation import create_tea_component, create_loading_component, create_steep_component
-from helpers import FileContext, SteepContext, get_available_components, pour_tag, get_paths_from_tsconfig, get_ts_configs, set_import
+from helpers import FileContext, SteepContext, get_available_components, pour_tag, get_paths_from_tsconfig, get_ts_configs, set_import, log
 from prompt import ComponentLocation, make_component_output_parser, write_component_location_prompt, write_component_prompt
 from langchain_community.llms.ollama import Ollama
 from langchain_core.language_models.llms import BaseLLM
 from typing import Dict, Iterator, Union
 from langchain_core.runnables import RunnableSerializable
+
 
 import os
 
@@ -30,13 +31,13 @@ class TeaAgent():
         return response
 
     def pour(self, component_name: str, ctx: SteepContext):
-        print("Pouring tea...")
+        log.info("Pouring tea...")
         # Get the root files
         component_location_parser = make_component_output_parser()
         component_location_prompt = write_component_location_prompt(component_location_parser)
         paths = get_paths_from_tsconfig(ctx.root_directory)
-        print("The prompt!")
-        print(component_location_prompt.format(**{
+        log.info("The prompt!")
+        log.info(component_location_prompt.format(**{
             "component_name": component_name,
             "path_aliases": paths, 
             "root_files": os.listdir(ctx.root_directory), 
@@ -58,15 +59,15 @@ class TeaAgent():
                 "root_path": ctx.root_directory,
             })
 
-            print("The response!")
-            print(full_response)
+            log.info("The response!")
+            log.info(full_response)
             try:
                 output_dict: dict = component_location_parser.parse(full_response)
                 # Defensively protect in case model outputs wrong format
                 if output_dict.get("properties", None) is not None:
                     output_dict = output_dict["properties"]
-                print("The output dict!")
-                print(output_dict)
+                log.info("The output dict!")
+                log.info(output_dict)
                 return output_dict
             except Exception as e:
                 if retries > 0:
@@ -75,8 +76,8 @@ class TeaAgent():
                     raise e
 
         output_dict: dict = handle_response()
-        print("The output dict!")
-        print(output_dict)
+        log.info("The output dict!")
+        log.info(output_dict)
         
         # Now that we have the paths, we just have to do some writing and cleanup
         # First, make the component at the path (create directories if need be)
@@ -123,8 +124,8 @@ class TeaAgent():
             packages=ctx.packages.model_dump(exclude_none=True),
             source_file=ctx.steep_path,
         )
-        print("The prompt!")
-        print(prompt)
+        log.info("The prompt!")
+        log.info(prompt)
 
         # Add the import to the top of the file
         modified = False
@@ -146,7 +147,7 @@ class TeaAgent():
 
 
         # Now the component is heating, this is where we ask the llm for code
-        print("Creating component. This could take a while...")
+        log.info("Creating component. This could take a while...")
 
         full_response = self._process_response(self.llm, prompt)
 
