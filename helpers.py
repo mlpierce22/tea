@@ -1,6 +1,9 @@
+import json5
+import os
 import re
-from typing import Dict, List, Literal, Union
+from typing import Any, Dict, List, Literal, Union
 from pydantic import BaseModel
+from pathlib import Path
 
 
 class Packages(BaseModel):
@@ -55,6 +58,22 @@ def extract_tag(file_content, tag="\w+", attribute=""):
 
     return None
 
+def pour_tag(file_content: str, new_component_name: str):
+    """
+    Replaces a tag with the newly created component
+    """
+    script_pattern = r"(<Tea)([^>]*)>([\s\S]*?)(<\/Tea>)"
+    match = re.search(script_pattern, file_content)
+    if match:
+        tag, attributes, content, end_tag = match.groups()
+        # Remove the pour attribute
+        new_attributes = re.sub(rf"pour=[\"']{new_component_name}[\"']", "", attributes).rstrip()
+        
+        return re.sub(script_pattern, f"<{new_component_name}{new_attributes}></{new_component_name}>", file_content)
+    else:
+        # No script tag found, return original file content
+        return file_content
+
 def set_import(file_content: str, import_statement: str, remove=False) -> tuple[str, bool]:
     # Pattern to match the script tag and any content inside it
     script_pattern = r"(<script[^>]*>)([\s\S]*?)(<\/script>)"
@@ -74,7 +93,7 @@ def set_import(file_content: str, import_statement: str, remove=False) -> tuple[
             return script_content.replace(last_import, last_import + '\n' + import_statement)
         else:
             # No existing imports, add after <script> tag
-            return import_statement + '\n' + script_content
+            return '\n' + import_statement + '\n' + script_content
 
     def remove_import(script_content: str) -> str:
         # Remove the specified import statement
@@ -89,4 +108,43 @@ def set_import(file_content: str, import_statement: str, remove=False) -> tuple[
         return file_content.replace(script_tag + script_content + script_end_tag, script_tag + new_script_content + script_end_tag), True
     else:
         # If no script tag is found, add one with the import if it's not being removed
-        return (file_content, False) if remove else (f"\n<script setup>\n{import_statement}\n</script>\n{file_content}", True)
+        return (file_content, False) if remove else (f"\n<script setup>\n{import_statement}\n</T>\n{file_content}", True)
+    
+
+def get_packages(root_directory: str) -> Packages:
+    """
+    Gets the packages from the package.json file
+    """
+    with open(os.path.join(root_directory, "package.json"), "r") as package_file:
+        package_json: Dict = json5.load(package_file)
+        return Packages(
+            dependencies=package_json.get("dependencies", None),
+            devDependencies=package_json.get("devDependencies", None),
+        )
+    
+def get_ts_configs(root_directory: str, file_name: str) -> Dict[str, Any]:
+    """
+    Gets the ts configs from the tsconfig.json file
+    """
+    ts_config_path = Path(root_directory, file_name)
+    with open(ts_config_path, "r") as tsconfig_file:
+        tsconfig_json: Dict = json5.loads(tsconfig_file.read())
+        if "extends" in tsconfig_json:
+            extended_path = str(Path(root_directory, tsconfig_json["extends"]))
+            extended = get_ts_configs(extended_path, "")
+            del tsconfig_json["extends"]
+            # Merge two configs, overwriting the second one
+            extended.update(tsconfig_json)
+            return extended
+        else:
+            return tsconfig_json
+        
+def get_paths_from_tsconfig(root_directory: str) -> Dict[str, List[str]]:
+    """
+    Gets the paths from the tsconfig.json file
+    """
+    tsconfig_json = get_ts_configs(root_directory, "tsconfig.json")
+    if "paths" in tsconfig_json.get("compilerOptions", None):
+        return tsconfig_json["compilerOptions"]["paths"]
+    else:
+        return {}

@@ -1,6 +1,15 @@
 
-from helpers import Packages
+from typing import List
 
+from pydantic import BaseModel, Field
+from helpers import Packages
+from langchain.prompts import PromptTemplate
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.pydantic_v1 import BaseModel, Field
+
+class ComponentLocation(BaseModel):
+    logical_path: str = Field(description="The full logical path to the component file. e.g. /full/path/to/component/MyComponent.vue")
+    import_statement_from_root: str = Field(description="The import statement from the root of the project. e.g. ~/components/MyComponent.vue")
 
 def write_component_prompt(user_query: str, steep_component_content: str, parent_file_content: str, packages: Packages, source_file: str, example_content: str = None):
     return f"""
@@ -44,3 +53,50 @@ DO NOT OMIT ANYTHING FOR BREVITY.
 DO NOT OMIT ANYTHING FOR BREVITY.
 DO NOT OMIT ANYTHING FOR BREVITY.
 """
+
+def make_component_output_parser() -> JsonOutputParser:
+    """
+        Builds the output parser for use in the chain
+    """
+
+    return JsonOutputParser(pydantic_object=ComponentLocation)
+
+
+def write_component_location_prompt(parser: JsonOutputParser):
+    """
+        Constructs a prompt template for using when determining where to put the component file
+    """
+
+    template = """
+Your job is to create a new component file called {component_name}.vue in the logical location within the project.
+Here is the path to the parent_component:
+```
+{parent_component_path}
+```
+
+Here is the root path to the project:
+```
+{root_path}
+```
+
+Here are the path aliases for the project:
+```
+{path_aliases}
+```
+
+Here are the files located at the root of the project:
+```
+{root_files}
+```
+
+Determine the BEST, MOST LOGICAL PATH for the new component file. Choose a component directory if it exists, otherwise put it close to the parent component so it is easy to find. DO NOT WRITE CODE. KEEP YOUR RESPONSE SHORT AND COMPLY WITH THE FORMAT BELOW.
+
+{format_instructions}
+    """
+    
+    return PromptTemplate(
+        template=template,
+        input_variables=["component_name", "parent_component_path", "path_aliases", "root_files", "root_path"],
+        partial_variables={
+            "format_instructions": parser.get_format_instructions()
+    })

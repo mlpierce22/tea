@@ -6,7 +6,7 @@ import time
 
 from pydantic import BaseModel
 from agent import TeaAgent
-from helpers import FileContext, Packages, SteepContext, TeaTag, extract_tag
+from helpers import FileContext, Packages, SteepContext, TeaTag, extract_tag, get_packages
 from watcher import FileWatcher
 import shutil
 import json
@@ -91,11 +91,8 @@ class Main:
         pour = tea_tag.model_dump().get("props", {}).get("pour", None)
 
         if pour:
-            print(f"Pouring component to {pour}...")
-            self.tea_agent.pour(pour_path=pour, ctx=steep_ctx)
-            # TODO
-            # mount_coffee_files("./mount", working_dir, False, cleanup=[steep_path])
-            # pour_component(pour_path=pour, ctx=steep_ctx)
+            print(f"Pouring{pour} component...")
+            self.tea_agent.pour(component_name=pour, ctx=steep_ctx)
         else:
             print("Steeping new component...")
             self.tea_agent.steep(ctx=steep_ctx)
@@ -117,7 +114,7 @@ class Main:
             file_content=file_content,
             root_directory=root_directory,
             path_to_teacup_folder=path_to_teacup_folder,
-            packages=self.get_packages(root_directory),
+            packages=get_packages(root_directory),
         )
 
         # Extract and process <Tea> tag
@@ -125,10 +122,12 @@ class Main:
         if tea_tag:
             print(f"<Tea> tag found in {file_path}")
             self.process_tea_tag(tea_tag=tea_tag, ctx=ctx)
+            return
 
-        # Extract and process <Component tea="..."> caffeniated components
+        # Extract and process <Component heat="..."> caffeniated components
+        # Reheat the component
         caffeinated_component = extract_tag(
-            file_content, attribute="tea=[\"'][^\"']+[\"']"
+            file_content, attribute="heat=[\"'][^\"']+[\"']"
         )
         if caffeinated_component:
             print(f"Caffeinated component found in {file_path}")
@@ -137,17 +136,6 @@ class Main:
             #     caffeinated_component=caffeinated_component, ctx=ctx
             # )
             return
-
-    def get_packages(self, root_directory: str) -> Packages:
-        """
-        Gets the packages from the package.json file
-        """
-        with open(os.path.join(root_directory, "package.json"), "r") as package_file:
-            package_json: Dict = json.load(package_file)
-            return Packages(
-                dependencies=package_json.get("dependencies", None),
-                devDependencies=package_json.get("devDependencies", None),
-            )
 
 
 
@@ -160,7 +148,7 @@ if __name__ == "__main__":
     model_name = sys.argv[1] if len(sys.argv) > 1 else "deepseek-coder:6.7b-instruct"
 
     print(f"Using model: {model_name}")
-    llm = Ollama(model=model_name, temperature=0)
+    llm = Ollama(model=model_name, temperature=0.5)
     # llm = Ollama(model="codellama:7b-instruct", request_timeout=30, temperature=0)
     # index = index_project("/Users/mason/Code/maestro", "./index", llm=llm)
 
