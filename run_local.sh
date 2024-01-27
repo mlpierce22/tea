@@ -1,32 +1,37 @@
 #!/bin/bash
 
 # Check if exactly one argument is provided
+USE_MODEL="deepseek-coder:6.7b-instruct"
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <ollama_model>"
+    echo "Using \"$USE_MODEL\" by default, you can specify a model with:"
+    echo "bash $0 <ollama_model>"
     echo "See available models at https://ollama.ai/library"
-    exit 1
+else
+    USE_MODEL=$1
 fi
 
-# Define your tasks here. Each task should be a function
-run_watcher() {
-    python main.py $1
-}
+export USE_MODEL
 
-run_ollama() {
-    ollama run "$1"  
-}
+python main.py $USE_MODEL
 
-# Pull the requested model before starting
-ollama pull "$1"
+# # Define your tasks here. Each task should be a function
+# run_watcher() {
+#     echo "Running watcher with model $USE_MODEL"
+#     python main.py $USE_MODEL
+# }
 
-# Store the names of the task functions in an array
-tasks=(run_watcher run_ollama) # Add more task names to this array as needed
+# run_ollama() {
+#     # echo "Running ollama with model $USE_MODEL"
+#     # ollama run $USE_MODEL
+# }
 
-# Export the functions
-for task in "${tasks[@]}"; do
-    export -f "$task"
-done
+# # Store the names of the task functions in an array
+# tasks=(run_watcher run_ollama) # Add more task names to this array as needed
+
+# # Export the functions
+# for task in "${tasks[@]}"; do
+#     export -f "$task"
+# done
 
 # Run the tasks in parallel with --line-buffer for immediate output and --halt now,fail=1 to stop immediately on failure
-parallel --line-buffer --halt now,fail=1 ::: "${tasks[@]}"
-
+# parallel --line-buffer --results logfiles --halt now,fail=1 ::: "${tasks[@]}"
