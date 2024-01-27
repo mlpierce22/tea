@@ -118,21 +118,36 @@ class Main:
             self.process_tea_tag(tea_tag=tea_tag, ctx=ctx)
             return
 
+def get_config_from_environment():
+    """
+    Returns a config dict from the environment variables.
+    """
+    CONFIG_DEFAULTS = {
+        "MODEL": "deepseek-coder:6.7b-instruct",
+        "ROOT_DIRECTORY": os.getcwd(),
+        "TEMPERATURE": "0.5",
+        "PATTERNS": "*.vue",
+        "IGNORE_PATTERNS": "Tea.vue,Steep.vue,Brewing.vue",
+    }
+    config = {
+        "patterns": os.getenv("PATTERNS", CONFIG_DEFAULTS["PATTERNS"]).split(","),
+        "root_directory": os.getenv("ROOT_DIRECTORY", CONFIG_DEFAULTS["ROOT_DIRECTORY"]),
+        "ignore_patterns": os.getenv("IGNORE_PATTERNS", CONFIG_DEFAULTS["IGNORE_PATTERNS"]).split(","),
+        "model": os.getenv("MODEL", CONFIG_DEFAULTS["MODEL"]),
+        "temperature": float(os.getenv("TEMPERATURE", CONFIG_DEFAULTS["TEMPERATURE"])),
+    }
+    return config
+
 if __name__ == "__main__":
     if watcher:
         watcher.stop()
 
-    # Check for argument passed when running this file for the model name
-    model_name = sys.argv[1] if len(sys.argv) > 1 else "deepseek-coder:6.7b-instruct"
+    config = get_config_from_environment()
 
-    config = {
-        "patterns": ["*.vue"],
-        "root_directory": "/Users/mason/Code/maestro",
-        "ignore_patterns": ["Tea.vue", "Steep.vue", "Brewing.vue"],
-    }
+    model_name = config.get('model')
 
     print(f"Using model: {model_name}")
-    llm = Ollama(model=model_name, temperature=0.5)
+    llm = Ollama(model=model_name, temperature=config.get('temperature'))
 
     main = Main(llm=llm, config=config)
     main.run()

@@ -1,30 +1,31 @@
 #!/bin/bash
 
-# Check if exactly one argument is provided
-USE_MODEL="deepseek-coder:6.7b-instruct"
-if [ "$#" -ne 1 ]; then
-    echo "Using \"$USE_MODEL\" by default, you can specify a model with:"
+if [ -z "$MODEL" ]; then
+    MODEL="deepseek-coder:6.7b-instruct"
+    echo "Using \"$MODEL\" by default, you can specify a model with:"
     echo "bash $0 <ollama_model>"
     echo "See available models at https://ollama.ai/library"
-else
-    USE_MODEL=$1
+    export MODEL
 fi
-
-export USE_MODEL
 
 # Define your tasks here. Each task should be a function
 run_watcher() {
-    echo "Running watcher with model $USE_MODEL"
-    python main.py "$USE_MODEL"
+    echo "Running watcher"
+    python main.py
 }
 
 run_ollama() {
-    echo "Running ollama with model $USE_MODEL"
-    ollama run "$USE_MODEL"
+    echo "Running ollama with model $MODEL"
+    ollama run "$MODEL"
+}
+
+serve_ollama() {
+    echo "Serving Ollama"
+    ollama serve 
 }
 
 # Store the names of the task functions in an array
-tasks=(run_watcher run_ollama) # Add more task names to this array as needed
+tasks=(serve_ollama run_watcher run_ollama) # Add more task names to this array as needed
 
 # Export the functions
 for task in "${tasks[@]}"; do
@@ -32,4 +33,4 @@ for task in "${tasks[@]}"; do
 done
 
 # Run the tasks in parallel with --line-buffer for immediate output and --halt now,fail=1 to stop immediately on failure
-parallel --line-buffer --halt now,fail=1 ::: run_watcher run_ollama
+parallel --line-buffer --halt now,fail=1 ::: serve_ollama run_watcher run_ollama
