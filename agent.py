@@ -2,9 +2,8 @@
 from pathlib import Path
 import shutil
 from component_creation import create_tea_component, create_loading_component, create_steep_component
-from helpers import FileContext, SteepContext, pour_tag, get_paths_from_tsconfig, get_ts_configs, set_import
+from helpers import FileContext, SteepContext, get_available_components, pour_tag, get_paths_from_tsconfig, get_ts_configs, set_import
 from prompt import ComponentLocation, make_component_output_parser, write_component_location_prompt, write_component_prompt
-from llama_index import VectorStoreIndex
 from langchain_community.llms.ollama import Ollama
 from langchain_core.language_models.llms import BaseLLM
 from typing import Dict, Iterator, Union
@@ -15,14 +14,12 @@ import os
 
 class TeaAgent():
     """
-        The agent has 3 tasks it is able to do (in order of process):
-        1. Pour - pour the tea into a component, removes the steeped tea
-        2. Steep - steep the tea into a WIP component, this is temporary until the user pours it
-        3. Sweeten - sweeten an already made component, this is temporary until the user pours it (Later??)
+        The agent has 2 tasks it is able to do (in order of process):
+        1. Steep - steep the tea into a WIP component, this is temporary until the user pours it
+        2. Pour - pour the tea into a component, removes the steeped tea
     """
-    def __init__(self, llm: BaseLLM = None, index: VectorStoreIndex =None):
+    def __init__(self, llm: BaseLLM = None):
         self.llm = llm
-        self.index = index
 
     def _process_response(self, chain: RunnableSerializable, args: Union[Dict, str]) -> str:
         response = ""
@@ -35,13 +32,12 @@ class TeaAgent():
     def pour(self, component_name: str, ctx: SteepContext):
         print("Pouring tea...")
         # Get the root files
-        # component_name=component_name, ts_configs=get_ts_configs(ctx.root_directory, "tsconfig.json"), root_files=os.listdir(ctx.root_directory), parent_component_path=ctx.file_path
         component_location_parser = make_component_output_parser()
         component_location_prompt = write_component_location_prompt(component_location_parser)
         paths = get_paths_from_tsconfig(ctx.root_directory)
         print("The prompt!")
         print(component_location_prompt.format(**{
-            "component_name": component_name, 
+            "component_name": component_name,
             "path_aliases": paths, 
             "root_files": os.listdir(ctx.root_directory), 
             "parent_component_path": ctx.file_path,
@@ -150,12 +146,9 @@ class TeaAgent():
 
 
         # Now the component is brewing, this is where we ask the llm for code
-        print("Creating component... This could take a while.")
+        print("Creating component. This could take a while...")
 
         full_response = self._process_response(self.llm, prompt)
-        # chat_engine = self.index.as_chat_engine()
-        # response = chat_engine.stream_chat(prompt)
-        # response.print_response_stream()
 
         # Grab the code from between the backticks
         code = full_response.split("```")[1].strip("\n")
