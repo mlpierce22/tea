@@ -1,49 +1,43 @@
-import re
 import os
 import sys
 import time
-# from llama_index.llms import Ollama, LLM
-
-from pydantic import BaseModel
+from pathlib import Path
 from agent import TeaAgent
 from helpers import FileContext, Packages, SteepContext, TeaTag, extract_tag, get_packages
 from watcher import FileWatcher
-import shutil
-import json
-from rag import index_project
 from langchain_community.llms.ollama import Ollama
 from langchain_core.language_models.llms import BaseLLM
 
-from typing import Any, Dict, Optional
 watcher: FileWatcher = None
 
 class Main:
-    def __init__(self, index=None, llm: BaseLLM = None):
-        # TODO: Take in a config file
-        self.tea_agent = TeaAgent(index=index, llm=llm)
-        self.config = {
-            "patterns": ["*.vue"],
-            "root_directory": "/Users/mason/Code/maestro",
-            "ignore_patterns": ["Tea.vue", "Steep.vue", "Brewing.vue"],
-        }
+    __default_config = {
+        "patterns": ["*.vue"],
+        "root_directory": "/Users/mason/Code/maestro",
+        "ignore_patterns": ["Tea.vue", "Steep.vue", "Brewing.vue"],
+    }
 
-        # if index:
-        #     self.index = index
-        # else:
-        #     raise Exception("Index not provided")
-        
+    def __init__(self, llm: BaseLLM = None, config: dict = None):
+        if not config:
+            config = self.__default_config
+
         if llm:
             self.llm = llm
         else:
             raise Exception("LLM not provided")
+
+        self.tea_agent = TeaAgent(llm=llm)
+        self.patterns = config["patterns"] or ["*.vue"]
+        self.root_directory = config["root_directory"]
+        self.ignore_patterns = list(set(["Tea.vue", "Steep.vue", "Brewing.vue"] + (config["ignore_patterns"] or [])))
     
     def run(self):
         print("Starting...")
 
         watcher = FileWatcher(
-            root_directory=self.config["root_directory"],
-            watch_patterns=self.config["patterns"],
-            ignore_patterns=self.config["ignore_patterns"],
+            root_directory=self.root_directory,
+            watch_patterns=self.patterns,
+            ignore_patterns=self.ignore_patterns,
         )
         watcher.start()
         prev_inc = 0
@@ -56,7 +50,7 @@ class Main:
 
                     self.process_file(
                         watcher.last_modified_file,
-                        root_directory=self.config["root_directory"],
+                        root_directory=self.root_directory,
                     )
                     time.sleep(1)
                     prev_inc = watcher.last_modified_file_inc
@@ -91,7 +85,7 @@ class Main:
         pour = tea_tag.model_dump().get("props", {}).get("pour", None)
 
         if pour:
-            print(f"Pouring{pour} component...")
+            print(f"Pouring {pour} component...")
             self.tea_agent.pour(component_name=pour, ctx=steep_ctx)
         else:
             print("Steeping new component...")
@@ -99,7 +93,7 @@ class Main:
 
     def process_file(self, file_path, root_directory=None):
         """
-        Detects and processes <Tea> and <Component tea="..."> tags.
+        Detects and processes <Tea> tags.
         """
         with open(file_path, "r") as file:
             file_content = file.read()
@@ -127,15 +121,18 @@ class Main:
 if __name__ == "__main__":
     if watcher:
         watcher.stop()
-    print("Indexing project...")
 
     # Check for argument passed when running this file for the model name
     model_name = sys.argv[1] if len(sys.argv) > 1 else "deepseek-coder:6.7b-instruct"
 
+    config = {
+        "patterns": ["*.vue"],
+        "root_directory": "/Users/mason/Code/maestro",
+        "ignore_patterns": ["Tea.vue", "Steep.vue", "Brewing.vue"],
+    }
+
     print(f"Using model: {model_name}")
     llm = Ollama(model=model_name, temperature=0.5)
-    # llm = Ollama(model="codellama:7b-instruct", request_timeout=30, temperature=0)
-    # index = index_project("/Users/mason/Code/maestro", "./index", llm=llm)
 
-    main = Main(llm=llm)
+    main = Main(llm=llm, config=config)
     main.run()
