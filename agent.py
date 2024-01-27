@@ -117,11 +117,13 @@ class TeaAgent():
         loading_component = create_loading_component()
         steep_component = create_steep_component()
         tea_component = create_tea_component()
+        available_components = get_available_components(ctx.root_directory)
 
         prompt = write_component_prompt(
             user_query=ctx.tea_tag.children,
             steep_component_content=ctx.steep_content,
             parent_file_content=ctx.file_content,
+            available_components=available_components,
             packages=ctx.packages.model_dump(exclude_none=True),
             source_file=ctx.steep_path,
         )

@@ -148,3 +148,20 @@ def get_paths_from_tsconfig(root_directory: str) -> Dict[str, List[str]]:
         return tsconfig_json["compilerOptions"]["paths"]
     else:
         return {}
+    
+def get_available_components(root_directory: str):
+    is_nuxt = ".nuxt" in os.listdir(root_directory)
+
+    if is_nuxt:
+        nuxt_components = Path(root_directory, ".nuxt/components.d.ts")
+        reg = r'export const ([^:]+): [^\n]*'
+        if nuxt_components.exists():
+            with open(nuxt_components, "r") as nuxt_components_file:
+                file_content = nuxt_components_file.read()
+                matches = re.findall(reg, file_content)
+                if matches:
+                    return 'This is a nuxt project. COMPONENTS ARE AUTOMATICALLY IMPORTED. DO NOT INCLUDE AN IMPORT STATEMENT WHEN USING COMPONENTS! You have the following components globally available for you to use since this is a Nuxt project: ```\n' + ", ".join(matches) + '\n```'
+
+        else:
+            return None
+    return None
