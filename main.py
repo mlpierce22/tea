@@ -124,21 +124,6 @@ class Main:
             self.process_tea_tag(tea_tag=tea_tag, ctx=ctx)
             return
 
-        # Extract and process <Component heat="..."> caffeniated components
-        # Reheat the component
-        caffeinated_component = extract_tag(
-            file_content, attribute="heat=[\"'][^\"']+[\"']"
-        )
-        if caffeinated_component:
-            print(f"Caffeinated component found in {file_path}")
-            print("TODO")
-            # proccess_caffeinated_component(
-            #     caffeinated_component=caffeinated_component, ctx=ctx
-            # )
-            return
-
-
-
 if __name__ == "__main__":
     if watcher:
         watcher.stop()

@@ -107,7 +107,6 @@ class TeaAgent():
         with open(ctx.file_path, "w") as file:
             file.write(final_parent_content)
 
-        # Then, remove the entire cup directory
         # Remove the teacup directory and everything inside it
         shutil.rmtree(ctx.path_to_teacup_folder)
 
