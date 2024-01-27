@@ -33,4 +33,4 @@ for task in "${tasks[@]}"; do
 done
 
 # Run the tasks in parallel with --line-buffer for immediate output and --halt now,fail=1 to stop immediately on failure
-parallel --line-buffer --halt now,fail=1 ::: serve_ollama run_watcher run_ollama
+parallel --line-buffer --results logfiles --delay 2 --halt now,fail=1 ::: serve_ollama run_watcher run_ollama

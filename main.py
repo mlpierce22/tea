@@ -11,25 +11,16 @@ from langchain_core.language_models.llms import BaseLLM
 watcher: FileWatcher = None
 
 class Main:
-    __default_config = {
-        "patterns": ["*.vue"],
-        "root_directory": "/Users/mason/Code/maestro",
-        "ignore_patterns": ["Tea.vue", "Steep.vue", "Brewing.vue"],
-    }
-
-    def __init__(self, llm: BaseLLM = None, config: dict = None):
-        if not config:
-            config = self.__default_config
-
+    def __init__(self, llm: BaseLLM, config: dict):
         if llm:
             self.llm = llm
         else:
             raise Exception("LLM not provided")
 
         self.tea_agent = TeaAgent(llm=llm)
-        self.patterns = config["patterns"] or ["*.vue"]
+        self.patterns = config["patterns"]
         self.root_directory = config["root_directory"]
-        self.ignore_patterns = list(set(["Tea.vue", "Steep.vue", "Brewing.vue"] + (config["ignore_patterns"] or [])))
+        self.ignore_patterns = config["ignore_patterns"]
     
     def run(self):
         print("Starting...")
@@ -124,7 +115,7 @@ def get_config_from_environment():
     """
     CONFIG_DEFAULTS = {
         "MODEL": "deepseek-coder:6.7b-instruct",
-        "ROOT_DIRECTORY": os.getcwd(),
+        "ROOT_DIRECTORY": None,
         "TEMPERATURE": "0.5",
         "PATTERNS": "*.vue",
         "IGNORE_PATTERNS": "Tea.vue,Steep.vue,Brewing.vue",
@@ -136,6 +127,9 @@ def get_config_from_environment():
         "model": os.getenv("MODEL", CONFIG_DEFAULTS["MODEL"]),
         "temperature": float(os.getenv("TEMPERATURE", CONFIG_DEFAULTS["TEMPERATURE"])),
     }
+    if not config["root_directory"]:
+        raise Exception("ROOT_DIRECTORY must be provided in environment!")
+
     return config
 
 if __name__ == "__main__":
@@ -143,11 +137,6 @@ if __name__ == "__main__":
         watcher.stop()
 
     config = get_config_from_environment()
-
-    model_name = config.get('model')
-
-    print(f"Using model: {model_name}")
-    llm = Ollama(model=model_name, temperature=config.get('temperature'))
-
+    llm = Ollama(model=config.get('model'), temperature=config.get('temperature'))
     main = Main(llm=llm, config=config)
     main.run()
