@@ -145,7 +145,7 @@ class TeaAgent():
                 file.write(file_content_with_tea_import)
 
 
-        # Now the component is brewing, this is where we ask the llm for code
+        # Now the component is heating, this is where we ask the llm for code
         print("Creating component. This could take a while...")
 
         full_response = self._process_response(self.llm, prompt)

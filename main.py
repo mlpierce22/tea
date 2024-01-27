@@ -58,7 +58,7 @@ class Main:
         extension = ctx.file_path.split(".")[-1]
         
         steep_path = os.path.join(ctx.path_to_teacup_folder, "Steep." + extension)
-        loading_component_path = os.path.join(ctx.path_to_teacup_folder, "Brewing." + extension)
+        loading_component_path = os.path.join(ctx.path_to_teacup_folder, "Heating." + extension)
         steep_content = ""
 
         if os.path.exists(steep_path):
@@ -118,7 +118,7 @@ def get_config_from_environment():
         "ROOT_DIRECTORY": None,
         "TEMPERATURE": "0.5",
         "PATTERNS": "*.vue",
-        "IGNORE_PATTERNS": "Tea.vue,Steep.vue,Brewing.vue",
+        "IGNORE_PATTERNS": "Tea.vue,Steep.vue,Heating.vue",
     }
     config = {
         "patterns": os.getenv("PATTERNS", CONFIG_DEFAULTS["PATTERNS"]).split(","),

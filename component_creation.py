@@ -12,13 +12,13 @@ import Steep from './Steep.vue'
 def create_steep_component() -> str:
     return f"""
 <script setup>
-// Remove this import when removing the Brewing component!
-import Brewing from './Brewing.vue'
+// Remove this import when removing the Heating component!
+import Heating from './Heating.vue'
 </script>
 
 <template>
-    <!-- Replace the Brewing component and this comment with your custom implementation! -->
-    <Brewing></Brewing>
+    <!-- Replace the Heating component and this comment with your custom implementation! -->
+    <Heating></Heating>
 </template>
 
 <!-- Put styles below if necessary! -->
