@@ -4,7 +4,7 @@ import sys
 import time
 from pathlib import Path
 from agent import TeaAgent
-from helpers import CONFIG_DEFAULTS, FileContext, Packages, SteepContext, TeaTag, extract_tag, get_packages, log
+from helpers import CONFIG_DEFAULTS, EnvConfig, FileContext, Packages, SteepContext, TeaTag, extract_tag, get_packages, log
 from watcher import FileWatcher
 from langchain_community.llms.ollama import Ollama
 from langchain_openai import OpenAI
@@ -13,16 +13,16 @@ from langchain_core.language_models.llms import BaseLLM
 watcher: FileWatcher = None
 
 class Main:
-    def __init__(self, llm: BaseLLM, config: dict):
+    def __init__(self, llm: BaseLLM, config: EnvConfig):
         if llm:
             self.llm = llm
         else:
             raise Exception("LLM not provided")
 
         self.tea_agent = TeaAgent(llm=llm)
-        self.patterns = config["patterns"]
-        self.root_directory = config["root_directory"]
-        self.ignore_patterns = config["ignore_patterns"]
+        self.patterns = config.patterns
+        self.root_directory = config.root_directory
+        self.ignore_patterns = config.ignore_patterns
     
     def run(self):
         log.info("Starting...")
@@ -120,16 +120,17 @@ def get_config_from_environment():
     """
     Returns a config dict from the environment variables.
     """
-    config = {
-        "patterns": os.getenv("PATTERNS", CONFIG_DEFAULTS["PATTERNS"]).split(","),
-        "root_directory": os.getenv("ROOT_DIRECTORY", CONFIG_DEFAULTS["ROOT_DIRECTORY"]),
-        "ignore_patterns": os.getenv("IGNORE_PATTERNS", CONFIG_DEFAULTS["IGNORE_PATTERNS"]).split(","),
-        "model": os.getenv("MODEL", CONFIG_DEFAULTS["MODEL"]),
-        "temperature": float(os.getenv("TEMPERATURE", CONFIG_DEFAULTS["TEMPERATURE"])),
-        "base_url": "http://" + os.getenv("OLLAMA_HOST", "localhost:11434"),
-        "openai_key": os.getenv("OPENAI_KEY", None),
-    }
-    if not config["root_directory"]:
+    config = EnvConfig(
+        patterns=os.getenv("PATTERNS", CONFIG_DEFAULTS["PATTERNS"]).split(","),
+        root_directory=os.getenv("ROOT_DIRECTORY", CONFIG_DEFAULTS["ROOT_DIRECTORY"]),
+        ignore_patterns=os.getenv("IGNORE_PATTERNS", CONFIG_DEFAULTS["IGNORE_PATTERNS"]).split(","),
+        model=os.getenv("MODEL", CONFIG_DEFAULTS["MODEL"]),
+        temperature=float(os.getenv("TEMPERATURE", CONFIG_DEFAULTS["TEMPERATURE"])),
+        base_url="http://" + os.getenv("OLLAMA_HOST", "localhost:11434"),
+        openai_key=os.getenv("OPENAI_KEY", None),
+    )
+
+    if not config.root_directory:
         raise Exception("ROOT_DIRECTORY must be provided in environment!")
 
     return config
@@ -139,11 +140,11 @@ if __name__ == "__main__":
         watcher.stop()
 
     config = get_config_from_environment()
-    if config.get('openai_key'):
-        model = "gpt-3.5-turbo-instruct" if config.get('model') == CONFIG_DEFAULTS["MODEL"] else config.get('model')
-        llm = OpenAI(model=model, temperature=config.get('temperature'), api_key=config.get('openai_key'))
+    if config.openai_key:
+        model = "gpt-3.5-turbo-instruct" if config.model == CONFIG_DEFAULTS["MODEL"] else config.model
+        llm = OpenAI(model=model, temperature=config.temperature, api_key=config.openai_key)
     else:
-        llm = Ollama(model=config.get('model'), temperature=config.get('temperature'), base_url=config.get('base_url'))
+        llm = Ollama(model=config.model, temperature=config.temperature, base_url=config.base_url)
 
     main = Main(llm=llm, config=config)
     main.run()

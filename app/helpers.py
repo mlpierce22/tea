@@ -39,6 +39,14 @@ class SteepContext(FileContext):
     tea_import_statement: str
     tea_tag: TeaTag
 
+class EnvConfig(BaseModel):
+        patterns: List[str]
+        root_directory: str
+        ignore_patterns: List[str]
+        model: str
+        temperature: float
+        base_url: str
+        openai_key: str | None
 CONFIG_DEFAULTS = {
     "MODEL": "deepseek-coder:6.7b-instruct",
     "ROOT_DIRECTORY": None,
