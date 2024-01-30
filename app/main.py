@@ -1,11 +1,13 @@
 import os
+import shutil
 import sys
 import time
 from pathlib import Path
 from agent import TeaAgent
-from helpers import FileContext, Packages, SteepContext, TeaTag, extract_tag, get_packages, log
+from helpers import CONFIG_DEFAULTS, FileContext, Packages, SteepContext, TeaTag, extract_tag, get_packages, log
 from watcher import FileWatcher
 from langchain_community.llms.ollama import Ollama
+from langchain_openai import OpenAI
 from langchain_core.language_models.llms import BaseLLM
 
 watcher: FileWatcher = None
@@ -108,18 +110,16 @@ class Main:
             log.info(f"<Tea> tag found in {file_path}")
             self.process_tea_tag(tea_tag=tea_tag, ctx=ctx)
             return
+        else:
+            log.info(f"No <Tea> tag found in {file_path}")
+            # Remove the teacup directory and everything inside it
+            # TODO: Only remove when no <Tea> tags are found in the repo in general
+            shutil.rmtree(ctx.path_to_teacup_folder)
 
 def get_config_from_environment():
     """
     Returns a config dict from the environment variables.
     """
-    CONFIG_DEFAULTS = {
-        "MODEL": "deepseek-coder:6.7b-instruct",
-        "ROOT_DIRECTORY": None,
-        "TEMPERATURE": "0.5",
-        "PATTERNS": "*.vue",
-        "IGNORE_PATTERNS": "Tea.vue,Steep.vue,Heating.vue",
-    }
     config = {
         "patterns": os.getenv("PATTERNS", CONFIG_DEFAULTS["PATTERNS"]).split(","),
         "root_directory": os.getenv("ROOT_DIRECTORY", CONFIG_DEFAULTS["ROOT_DIRECTORY"]),
@@ -127,6 +127,7 @@ def get_config_from_environment():
         "model": os.getenv("MODEL", CONFIG_DEFAULTS["MODEL"]),
         "temperature": float(os.getenv("TEMPERATURE", CONFIG_DEFAULTS["TEMPERATURE"])),
         "base_url": "http://" + os.getenv("OLLAMA_HOST", "localhost:11434"),
+        "openai_key": os.getenv("OPENAI_KEY", None),
     }
     if not config["root_directory"]:
         raise Exception("ROOT_DIRECTORY must be provided in environment!")
@@ -138,6 +139,11 @@ if __name__ == "__main__":
         watcher.stop()
 
     config = get_config_from_environment()
-    llm = Ollama(model=config.get('model'), temperature=config.get('temperature'), base_url=config.get('base_url'))
+    if config.get('openai_key'):
+        model = None if config.get('model') == CONFIG_DEFAULTS["MODEL"] else config.get('model')
+        llm = OpenAI(model=model, temperature=config.get('temperature'), openai_key=config.get('openai_key'))
+    else:
+        llm = Ollama(model=config.get('model'), temperature=config.get('temperature'), base_url=config.get('base_url'))
+
     main = Main(llm=llm, config=config)
     main.run()

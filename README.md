@@ -28,6 +28,7 @@ Tea makes frontend Vue development as easy as making a cup of tea: just heat, st
     docker run -d \
         -v ollama:/root/.ollama \
         -v $(pwd):/mount \
+        -p 11434:11434 \
         -e MODEL=deepseek-coder:6.7b-instruct \
         --name tea tea:0.0.1
     ```
@@ -95,6 +96,8 @@ Becomes
 Currently, Tea accepts environment variables to determine it's behavior.
 - `MODEL`: Choose from any model on [https://ollama.ai/library](https://ollama.ai/library)
     - **Default**: `deepseek-coder:6.7b-instruct`
+- `OPENAI_KEY`: Use OpenAI's models. There is no need to use Ollama if this is supplied.
+    - **Default**: `None`
 - `ROOT_DIRECTORY`: Helpful if you want to run the docker container in a different terminal than your Vue repository
     - **Default**: the working directory of the docker run command 
 - `TEMPERATURE`: Helpful if you want the model to be more ✨creative✨
@@ -103,6 +106,13 @@ Currently, Tea accepts environment variables to determine it's behavior.
 
 ## Contributors
 I welcome contributions and bug fixes! If you find something isn't working, please open an issue. Feel free to contribute pull requests!
+
+### Running locally
+1. Clone this repository
+2. [Recommended] Create a virtual environment and activate it
+3. Install dependencies from the `requirements.txt` file: `pip install -r requirements.txt`
+4. Run the watcher with `ROOT_DIRECTORY=/path/to/vue/project bash run_local.sh`
+  - Create any of the environment variables from the [Configuration][#Configuration] section above as needed
 
 ## Inspirations
 This project was HEAVILY inspired by [Coffee](https://github.com/Coframe/coffee) from the Coframe team.

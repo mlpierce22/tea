@@ -39,6 +39,14 @@ class SteepContext(FileContext):
     tea_import_statement: str
     tea_tag: TeaTag
 
+CONFIG_DEFAULTS = {
+    "MODEL": "deepseek-coder:6.7b-instruct",
+    "ROOT_DIRECTORY": None,
+    "TEMPERATURE": "0.5",
+    "PATTERNS": "*.vue",
+    "IGNORE_PATTERNS": "Tea.vue,Steep.vue,Heating.vue",
+}
+
 def extract_tag(file_content, tag="\w+", attribute=""):
     """
     Extracts a tag from the file content based on the tag name and additional attributes.
