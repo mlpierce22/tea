@@ -1,4 +1,4 @@
-### Tea 🫖
+# Tea 🫖
 
 ## Introduction
 
@@ -122,7 +122,7 @@ Thank you also to these other cool projects that acted as inspirations:
 - [Vue0](https://www.vue0.dev/)
 
 ## Connect
-Hey! My name is Mason and I'm a full-stack developer based out of San Francisco! Please reach out if you want to
+Hey! My name is Mason and I'm a full-stack developer based out of San Francisco! Always open to chat!
 Website: https://masonpierce.dev/
 Twitter: https://twitter.com/mlpierce22
 
