@@ -2,7 +2,7 @@
 from pathlib import Path
 import shutil
 from component_creation import create_tea_component, create_loading_component, create_steep_component
-from helpers import FileContext, SteepContext, get_available_components, pour_tag, get_paths_from_tsconfig, get_ts_configs, set_import, log
+from helpers import FileContext, SteepContext, get_available_components, pour_tag, get_paths_from_tsconfig, get_ts_configs, set_import, log, file_log
 from prompt import ComponentLocation, make_component_output_parser, write_component_location_prompt, write_component_prompt
 from langchain_community.llms.ollama import Ollama
 from langchain_core.language_models.llms import BaseLLM
@@ -22,12 +22,20 @@ class TeaAgent():
     def __init__(self, llm: BaseLLM = None):
         self.llm = llm
 
+    def print_chunk(self, chunk: str, end: str = ""):
+        if file_log:
+            print(chunk, end=end, flush=True, file=file_log)
+        else:
+            print(chunk, end=end, flush=True)
+
     def _process_response(self, chain: RunnableSerializable, args: Union[Dict, str]) -> str:
         response = ""
         for chunk in chain.stream(args):
-            print(chunk, end="", flush=True)
+            self.print_chunk(chunk)
             response += chunk
 
+        self.print_chunk("\n\n\n-------\n\n\n")
+        log.info(response)
         return response
 
     def pour(self, component_name: str, ctx: SteepContext):
