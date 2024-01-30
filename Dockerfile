@@ -13,15 +13,15 @@ COPY app app
 COPY requirements.txt requirements.txt
 COPY run_local.sh run_local.sh
 
-# Install python dependencies
-RUN pip3 install --no-cache-dir -r requirements.txt
-
 # Install ollama command line tool
 RUN curl https://ollama.ai/install.sh | sh
 
 ENV ROOT_DIRECTORY="/mount"
 # ENV FILE_LOG_PATH="/home/tea-output.log"
 ENV OLLAMA_HOST="host.docker.internal:11434"
+
+# Install python dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 ENTRYPOINT ["/bin/bash"]
 
