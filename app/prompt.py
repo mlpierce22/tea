@@ -11,6 +11,35 @@ class ComponentLocation(BaseModel):
     logical_path: str = Field(description="The full logical path to the component file. e.g. /full/path/to/component/MyComponent.vue")
     import_statement_from_root: str = Field(description="The import statement from the root of the project. e.g. ~/components/MyComponent.vue")
 
+EXAMPLE_COMPONENT = """
+    <script setup lang="ts">
+
+        const count = ref(1)
+        const double = computed(() => count.value * 2)
+
+        const onClick = () => {
+            console.log("Clicked!");
+            count.value += 1;
+        }
+    </script>
+
+    <template>
+        <div class="red-box">
+            <button @click="onClick">Click count: {{ count }}</button>
+            <p>Double count: {{ double }}</p>
+        </div>
+    </template>
+
+    <style scoped>
+        .red-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: red;
+        }
+    </style>
+    """
+
 def write_component_prompt(user_query: str, steep_component_content: str, parent_file_content: str, packages: Packages, source_file: str, available_components: str = None, example_content: str = None):
     return f"""
 You are a pragmatic principal open-source frontend engineer specializing in the Vue ecosystem.
