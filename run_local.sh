@@ -19,13 +19,8 @@ run_ollama() {
     ollama run "$MODEL"
 }
 
-serve_ollama() {
-    echo "Serving Ollama"
-    ollama serve 
-}
-
 # Store the names of the task functions in an array
-tasks=(serve_ollama run_watcher run_ollama) # Add more task names to this array as needed
+tasks=(run_watcher run_ollama) # Add more task names to this array as needed
 
 # Export the functions
 for task in "${tasks[@]}"; do
@@ -33,4 +28,4 @@ for task in "${tasks[@]}"; do
 done
 
 # Run the tasks in parallel with --line-buffer for immediate output and --halt now,fail=1 to stop immediately on failure
-parallel --line-buffer --results logfiles --delay 2 --halt now,fail=1 ::: serve_ollama run_watcher run_ollama
+parallel --line-buffer --halt now,fail=1 ::: run_watcher run_ollama
