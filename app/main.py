@@ -126,6 +126,7 @@ def get_config_from_environment():
         "ignore_patterns": os.getenv("IGNORE_PATTERNS", CONFIG_DEFAULTS["IGNORE_PATTERNS"]).split(","),
         "model": os.getenv("MODEL", CONFIG_DEFAULTS["MODEL"]),
         "temperature": float(os.getenv("TEMPERATURE", CONFIG_DEFAULTS["TEMPERATURE"])),
+        "base_url": "http://" + os.getenv("OLLAMA_HOST", "localhost:11434"),
     }
     if not config["root_directory"]:
         raise Exception("ROOT_DIRECTORY must be provided in environment!")
@@ -137,6 +138,6 @@ if __name__ == "__main__":
         watcher.stop()
 
     config = get_config_from_environment()
-    llm = Ollama(model=config.get('model'), temperature=config.get('temperature'))
+    llm = Ollama(model=config.get('model'), temperature=config.get('temperature'), base_url=config.get('base_url'))
     main = Main(llm=llm, config=config)
     main.run()
