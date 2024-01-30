@@ -172,7 +172,7 @@ def get_available_components(root_directory: str):
                 file_content = nuxt_components_file.read()
                 matches = re.findall(reg, file_content)
                 if matches:
-                    return 'This is a nuxt project. COMPONENTS ARE AUTOMATICALLY IMPORTED. DO NOT INCLUDE AN IMPORT STATEMENT WHEN USING COMPONENTS! You have the following components globally available for you to use since this is a Nuxt project: ```\n' + ", ".join(matches) + '\n```'
+                    return 'This is a Nuxt.js project. COMPONENTS ARE AUTOMATICALLY IMPORTED. DO NOT INCLUDE AN IMPORT STATEMENT WHEN USING THESE COMPONENTS! You have the following components globally available for you. DO NOT IMPORT THESE COMPONENTS: ---\n' + ", ".join(matches) + '\n---'
 
         else:
             return None

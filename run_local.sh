@@ -15,8 +15,13 @@ run_watcher() {
 }
 
 run_ollama() {
-    echo "Running ollama with model $MODEL"
-    ollama run "$MODEL"
+    # Check if the OPENAI_KEY environment variable is not set before running ollama
+    if [ -z "$OPENAI_KEY" ]; then
+        echo "Running ollama with model $MODEL"
+        ollama run "$MODEL"
+    else
+        echo "Skipping ollama run due to OPENAI_KEY being set"
+    fi
 }
 
 # Store the names of the task functions in an array

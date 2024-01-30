@@ -140,8 +140,8 @@ if __name__ == "__main__":
 
     config = get_config_from_environment()
     if config.get('openai_key'):
-        model = None if config.get('model') == CONFIG_DEFAULTS["MODEL"] else config.get('model')
-        llm = OpenAI(model=model, temperature=config.get('temperature'), openai_key=config.get('openai_key'))
+        model = "gpt-3.5-turbo-instruct" if config.get('model') == CONFIG_DEFAULTS["MODEL"] else config.get('model')
+        llm = OpenAI(model=model, temperature=config.get('temperature'), api_key=config.get('openai_key'))
     else:
         llm = Ollama(model=config.get('model'), temperature=config.get('temperature'), base_url=config.get('base_url'))
 
