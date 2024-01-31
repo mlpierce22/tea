@@ -19,7 +19,7 @@ class Main:
         else:
             raise Exception("LLM not provided")
 
-        self.tea_agent = TeaAgent(llm=llm)
+        self.tea_agent = TeaAgent(llm=llm, should_think=config.think)
         self.patterns = config.patterns
         self.root_directory = config.root_directory
         self.ignore_patterns = config.ignore_patterns
@@ -128,6 +128,7 @@ def get_config_from_environment():
         temperature=float(os.getenv("TEMPERATURE", CONFIG_DEFAULTS["TEMPERATURE"])),
         base_url="http://" + os.getenv("OLLAMA_HOST", "localhost:11434"),
         openai_key=os.getenv("OPENAI_KEY", None),
+        think=bool(os.getenv("THINK", CONFIG_DEFAULTS["THINK"])),
     )
 
     if not config.root_directory:
