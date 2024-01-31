@@ -131,7 +131,6 @@ class TeaAgent():
             available_components=available_components,
             packages=ctx.packages.model_dump(exclude_none=True),
             source_file=ctx.steep_path,
-            example_content=EXAMPLE_COMPONENT
         )
         log.info("The prompt!")
         log.info(prompt)
