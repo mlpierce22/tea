@@ -141,7 +141,7 @@ I welcome contributions and bug fixes! If you find something isn't working, plea
 2. [Recommended] Create a virtual environment and activate it
 3. Install dependencies from the `requirements.txt` file: `pip install -r requirements.txt`
 4. Run the watcher with `ROOT_DIRECTORY=/path/to/vue/project bash run_local.sh`
-  - Create any of the environment variables from the [Configuration][#Configuration] section above as needed
+    - Create any of the environment variables from the [Configuration](#Configuration) section above as needed
 
 ## Inspirations
 This project was HEAVILY inspired by [Coffee](https://github.com/Coframe/coffee) from the Coframe team.
@@ -151,8 +151,8 @@ Thank you also to these other cool projects that acted as inspirations:
 - [Vue0](https://www.vue0.dev/)
 
 ## Connect
-Hey! My name is Mason and I'm a full-stack developer based out of San Francisco! Always open to chat!
-Website: https://masonpierce.dev/
+Hey! My name is Mason and I'm a full-stack developer based out of San Francisco! Always open to chat!   
+Website: https://masonpierce.dev/   
 Twitter: https://twitter.com/mlpierce22
 
 ## License
