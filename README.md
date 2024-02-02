@@ -2,15 +2,17 @@
 
 ## Introduction
 
-Tea makes frontend Vue development as easy as making a cup of tea: just heat, steep, and pour. This tool allows you to utilize the power of local large language models to quickly create Vue components.
+Tea makes frontend Vue development as easy as making a cup of tea: just heat, steep, and pour. This tool allows you to utilize the power of local large language models to quickly create Vue3 components.
 
 ## Table of Contents
 
-- [Introduction](#introduction)
+- [Introduction](#Introduction)
 - [Usage](#Usage)
 - [Examples](#Examples)
 - [Features](#Features)
 - [Configuration](#Configuration)
+- [Choosing a Model](#Choosing-a-Model)
+- [Improvements](#Improvements)
 - [Contributors](#Contributors)
 - [Inspirations](#Inspirations)
 - [Connect](#Connect)
@@ -24,14 +26,15 @@ Tea makes frontend Vue development as easy as making a cup of tea: just heat, st
     3. Have `docker` installed on your computer. Instructions on how to do that can be found [here](https://docs.docker.com/engine/install/)
 1. Start Ollama with `ollama serve` in a terminal or by clicking on the icon if you downloaded the app
 2. Go to the root directory of your `Vue` project and run the following docker command
-    ```
-    docker run -d \
-        -v ollama:/root/.ollama \
-        -v $(pwd):/mount \
-        -p 11434:11434 \
-        -e MODEL=deepseek-coder:6.7b-instruct \
-        --name tea tea:0.0.1
-    ```
+```bash
+docker run -d \
+    --pull=always \
+    -v ollama:/root/.ollama \
+    -v $(pwd):/mount \
+    -p 11434:11434 \
+    -e MODEL=deepseek-coder:6.7b-instruct \
+    --name tea mlpierce22/tea:0.0.1
+```
 3. Add a `<Tea>` component into your `Vue` template like you were creating a component and save. Generation should begin!
 4. When you have generated to your heart's content, you can pour the tea by adding the `pour` prop like `pour="ComponentName"` and it will generate a component with that name, replacing the Tea component.
 
@@ -94,7 +97,7 @@ Becomes
 ## Configuration
 
 Currently, Tea accepts environment variables to determine it's behavior.
-- `MODEL`: Choose from any model on [https://ollama.ai/library](https://ollama.ai/library). See [Choosing a model](#Choosing a Model)
+- `MODEL`: Choose from any model on [https://ollama.ai/library](https://ollama.ai/library). See [Choosing a model](#Choosing-a-Model)
     - **Default**: `deepseek-coder:6.7b-instruct`
 - `OPENAI_KEY`: Use OpenAI's models. There is no need to use Ollama if this is supplied.
     - **Default**: `None`
