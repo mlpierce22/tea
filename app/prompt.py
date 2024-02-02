@@ -30,6 +30,7 @@ def write_component_prompt(user_query: str, steep_component_content: str, parent
         edit_content = steep_component_content
     else:
         edit_content = EXAMPLE_COMPONENT
+
     return f"""
 You are a pragmatic principal open-source frontend engineer specializing in the Vue ecosystem.
 You are about to get instructions for code to write.
@@ -69,32 +70,6 @@ Fill out/edit this component to comply with the user's query. Do not change the 
 ```vue
 {edit_content}
 ```
-"""
-
-def write_double_check_prompt(generated_component_code: str, user_query: str, approved_string: str, available_components: str = None):
-    return f"""
-Your job is to ensure that the following vue component adhere's to the user's query and follows all instructions. If it does not, you must correct it by rewriting the Vue code inside triple backticks (```). If it does, you must approve it by writing "{approved_string}" inside triple backticks (```).
-
-Here is the generated component you need to check:
-```
-{generated_component_code}
-```
-
-The user asked for the following:
-```
-{user_query}
-```
-
-{available_components if available_components else ''}
-
-The rules are:
-- There should be NO MORE THAN 1 <script> tag, NO MORE THAN 1 <template> tag, and NO MORE THAN 1 <style> tag in the output file.
-- DO NOT add any new libraries or assume any classes or components that you don't see, other than those clearly used by the component. Put everything into this single file: styles, types, etc.
-- The code should be complete and fully functional. NO PLACEHOLDERS. Do not add any comments. NO OMISSIONS. Any omission or deviation will completely break the system.
-- DO NOT OMIT ANYTHING FOR BREVITY
-- The code must make sense and be easy to understand. It should be as simple as possible, but no simpler.
-- The code must make reasonable assumptions about the user query
-- Take your time, walk through this step by step, starting with if and what you will change and why. Then, if changes are necessary, make them. If not, approve the component.
 """
 
 def make_component_output_parser() -> JsonOutputParser:
