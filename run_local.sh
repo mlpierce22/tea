@@ -24,6 +24,9 @@ run_ollama() {
     fi
 }
 
+# Pull the model first
+ollama pull "$MODEL"
+
 # Store the names of the task functions in an array
 tasks=(run_watcher run_ollama) # Add more task names to this array as needed
 
