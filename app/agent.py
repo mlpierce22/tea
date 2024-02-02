@@ -19,9 +19,8 @@ class TeaAgent():
         1. Steep - steep the tea into a WIP component, this is temporary until the user pours it
         2. Pour - pour the tea into a component, removes the steeped tea
     """
-    def __init__(self, llm: BaseLLM = None, should_think: bool = True):
+    def __init__(self, llm: BaseLLM = None):
         self.llm = llm
-        self.should_think = should_think
 
     def print_chunk(self, chunk: str, end: str = ""):
         if file_log:

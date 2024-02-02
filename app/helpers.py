@@ -47,7 +47,6 @@ class EnvConfig(BaseModel):
         temperature: float
         base_url: str
         openai_key: str | None
-        think: bool
 
 CONFIG_DEFAULTS = {
     "MODEL": "deepseek-coder:6.7b-instruct",
@@ -55,7 +54,6 @@ CONFIG_DEFAULTS = {
     "TEMPERATURE": "0.5",
     "PATTERNS": "*.vue",
     "IGNORE_PATTERNS": "Tea.vue,Steep.vue,Heating.vue",
-    "THINK": "True",
 }
 
 def extract_tag(file_content, tag="\w+", attribute=""):
