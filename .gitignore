@@ -2,3 +2,5 @@ env
 __pycache__
 index
 cup
+tests
+prompt.txt

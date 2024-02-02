@@ -2,15 +2,17 @@
 
 ## Introduction
 
-Tea makes frontend Vue development as easy as making a cup of tea: just heat, steep, and pour. This tool allows you to utilize the power of local large language models to quickly create Vue components.
+Tea makes frontend Vue development as easy as making a cup of tea: just heat, steep, and pour. This tool allows you to utilize the power of local large language models to quickly create Vue3 components.
 
 ## Table of Contents
 
-- [Introduction](#introduction)
+- [Introduction](#Introduction)
 - [Usage](#Usage)
 - [Examples](#Examples)
 - [Features](#Features)
 - [Configuration](#Configuration)
+- [Choosing a Model](#Choosing-a-Model)
+- [Improvements](#Improvements)
 - [Contributors](#Contributors)
 - [Inspirations](#Inspirations)
 - [Connect](#Connect)
@@ -24,14 +26,15 @@ Tea makes frontend Vue development as easy as making a cup of tea: just heat, st
     3. Have `docker` installed on your computer. Instructions on how to do that can be found [here](https://docs.docker.com/engine/install/)
 1. Start Ollama with `ollama serve` in a terminal or by clicking on the icon if you downloaded the app
 2. Go to the root directory of your `Vue` project and run the following docker command
-    ```
-    docker run -d \
-        -v ollama:/root/.ollama \
-        -v $(pwd):/mount \
-        -p 11434:11434 \
-        -e MODEL=deepseek-coder:6.7b-instruct \
-        --name tea tea:0.0.1
-    ```
+```bash
+docker run -d \
+    --pull=always \
+    -v ollama:/root/.ollama \
+    -v $(pwd):/mount \
+    -p 11434:11434 \
+    -e MODEL=deepseek-coder:6.7b-instruct \
+    --name tea mlpierce22/tea:0.0.1
+```
 3. Add a `<Tea>` component into your `Vue` template like you were creating a component and save. Generation should begin!
 4. When you have generated to your heart's content, you can pour the tea by adding the `pour` prop like `pour="ComponentName"` and it will generate a component with that name, replacing the Tea component.
 
@@ -88,13 +91,13 @@ Becomes
 - **Fast-Setup**: Get going in minutes - if you're already set up... seconds.
 - **Works With All Vue 3 Projects**: The model guesses the desired syntax based on the parent component, so you can just plug and play.
 - **Prototype Rapidly and Cheaply**: You don't have to worry about api keys or cost, which is one of the biggest gating factors to current code generation solutions. If it doesn't work at first, just keep iterating.
-- **Generates Working Vue Code Reliably**: This should at least be a much better start than a static generator.
+- **Generates Working Vue Code semi-reliably**: This should at least be a much better start than a static generator. If you can run 34b models locally, you will get much better results.
 - **Use any model supported by Ollama**: Find every available model at [https://ollama.ai](https://ollama.ai/). If you have a beefy computer, you can even use the larger, 13B or 70B models that will approach the performance of GPT-3.5/4.
 
 ## Configuration
 
 Currently, Tea accepts environment variables to determine it's behavior.
-- `MODEL`: Choose from any model on [https://ollama.ai/library](https://ollama.ai/library)
+- `MODEL`: Choose from any model on [https://ollama.ai/library](https://ollama.ai/library). See [Choosing a model](#Choosing-a-Model)
     - **Default**: `deepseek-coder:6.7b-instruct`
 - `OPENAI_KEY`: Use OpenAI's models. There is no need to use Ollama if this is supplied.
     - **Default**: `None`
@@ -103,6 +106,32 @@ Currently, Tea accepts environment variables to determine it's behavior.
 - `TEMPERATURE`: Helpful if you want the model to be more ✨creative✨
     - **Default**: 0.5
 
+## Choosing a Model
+After running tests on all the Ollama models that weren't too big for me to run, here are my general takeaways:
+- Generally speaking, bigger models perform better, but slower
+- I would recommend going for `instruct` models or models trained on coding
+- Don't bother with models that are used for completion, they won't follow the instructions and you will get gibberish
+
+These are the models I recommend that perform fairly well and are fast enough to be viable
+Key
+  Quality: High (H), Medium (M), Low (L)
+  Time: Seconds (avg)
+
+| Model                              | Quality | Time to complete |
+|------------------------------------|---------|------------------|
+| deepseek-coder:6.7b-instruct-q4_0  | M       | 19               |
+| deepseek-coder:6.7b-instruct       | M       | 19               |
+| deepseek-coder:6.7b                | M       | 23               |
+| codellama:7b-instruct-q4_0         | M       | 26               |
+| codellama:13b-instruct-q4_0        | H       | 26               |
+| codellama:7b-instruct              | H       | 29               |
+
+
+## Improvements
+- [ ] Add updating existing components. This gets tricky because it's unclear how UX should work if the user want's to undo generation.
+- [ ] Fine-tune an instructor model to generate consistently. [Kevind13's finetune works okay, but not great](https://huggingface.co/kevind13/codeLlama-7b-Instruct-hf-vuejs-nuxt-tailwind-finetuned-examples)
+- [ ] Don't add quite so much thinking to the LLM. Currently, some of the assumptions may not work for everybody, but in the interest of getting this out, I figured that was the best approach
+- [ ] Add regeneration in case first generation was bad, and/or generate multiple versions and select the best one.
 
 ## Contributors
 I welcome contributions and bug fixes! If you find something isn't working, please open an issue. Feel free to contribute pull requests!
@@ -112,7 +141,7 @@ I welcome contributions and bug fixes! If you find something isn't working, plea
 2. [Recommended] Create a virtual environment and activate it
 3. Install dependencies from the `requirements.txt` file: `pip install -r requirements.txt`
 4. Run the watcher with `ROOT_DIRECTORY=/path/to/vue/project bash run_local.sh`
-  - Create any of the environment variables from the [Configuration][#Configuration] section above as needed
+    - Create any of the environment variables from the [Configuration](#Configuration) section above as needed
 
 ## Inspirations
 This project was HEAVILY inspired by [Coffee](https://github.com/Coframe/coffee) from the Coframe team.
@@ -122,8 +151,8 @@ Thank you also to these other cool projects that acted as inspirations:
 - [Vue0](https://www.vue0.dev/)
 
 ## Connect
-Hey! My name is Mason and I'm a full-stack developer based out of San Francisco! Always open to chat!
-Website: https://masonpierce.dev/
+Hey! My name is Mason and I'm a full-stack developer based out of San Francisco! Always open to chat!   
+Website: https://masonpierce.dev/   
 Twitter: https://twitter.com/mlpierce22
 
 ## License

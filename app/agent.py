@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 from component_creation import create_tea_component, create_loading_component, create_steep_component
 from helpers import FileContext, SteepContext, get_available_components, pour_tag, get_paths_from_tsconfig, get_ts_configs, set_import, log, file_log
-from prompt import EXAMPLE_COMPONENT, ComponentLocation, make_component_output_parser, write_component_location_prompt, write_component_prompt
+from prompt import EXAMPLE_COMPONENT, ComponentLocation, make_component_output_parser, write_component_location_prompt, write_component_prompt, write_double_check_prompt
 from langchain_community.llms.ollama import Ollama
 from langchain_core.language_models.llms import BaseLLM
 from typing import Dict, Iterator, Union
@@ -119,6 +119,7 @@ class TeaAgent():
         """
             Writes a temporary component and adds an import to the top of the saved file
         """
+        
         loading_component = create_loading_component()
         steep_component = create_steep_component()
         tea_component = create_tea_component()

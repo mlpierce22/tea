@@ -47,6 +47,7 @@ class EnvConfig(BaseModel):
         temperature: float
         base_url: str
         openai_key: str | None
+
 CONFIG_DEFAULTS = {
     "MODEL": "deepseek-coder:6.7b-instruct",
     "ROOT_DIRECTORY": None,
@@ -180,8 +181,14 @@ def get_available_components(root_directory: str):
                 file_content = nuxt_components_file.read()
                 matches = re.findall(reg, file_content)
                 if matches:
-                    return 'This is a Nuxt.js project. COMPONENTS ARE AUTOMATICALLY IMPORTED. DO NOT INCLUDE AN IMPORT STATEMENT WHEN USING THESE COMPONENTS! You have the following components globally available for you. DO NOT IMPORT THESE COMPONENTS: ---\n' + ", ".join(matches) + '\n---'
-
+                    first_lazy_index = matches.index(lambda x: x.startswith("Lazy"))
+                    matches = matches[:first_lazy_index]
+                    return f"""
+                    This is a Nuxt.js project. COMPONENTS ARE AUTOMATICALLY IMPORTED. DO NOT INCLUDE AN IMPORT STATEMENT WHEN USING THESE COMPONENTS! You have the following components globally available for you. DO NOT IMPORT THESE COMPONENTS:
+                    ```
+                    {','.join(matches)}
+                    ```
+                    """
         else:
             return None
     return None
