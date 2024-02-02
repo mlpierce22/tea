@@ -12,35 +12,24 @@ class ComponentLocation(BaseModel):
     import_statement_from_root: str = Field(description="The import statement from the root of the project. e.g. ~/components/MyComponent.vue")
 
 EXAMPLE_COMPONENT = """
-    <script setup lang="ts">
+<script setup lang="ts">
+// Put variables, props, and any other business logic here. Ensure it is well structured. Remove this when generating code.
+</script>
 
-        const count = ref(1)
-        const double = computed(() => count.value * 2)
+<template>
+    <!-- Replace this with the code to implement the user's request visually. Remember, you can use the components listed above here! Remove this when generating code -->
+</template>
 
-        const onClick = () => {
-            console.log("Clicked!");
-            count.value += 1;
-        }
-    </script>
+<!-- Put styles below if necessary! Remove this when generating code -->
+<style scoped>
+</style>
+"""
 
-    <template>
-        <div class="red-box">
-            <button @click="onClick">Click count: {{ count }}</button>
-            <p>Double count: {{ double }}</p>
-        </div>
-    </template>
-
-    <style scoped>
-        .red-box {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: red;
-        }
-    </style>
-    """
-
-def write_component_prompt(user_query: str, steep_component_content: str, parent_file_content: str, packages: Packages, source_file: str, available_components: str = None, example_content: str = None):
+def write_component_prompt(user_query: str, steep_component_content: str, parent_file_content: str, packages: Packages, source_file: str, available_components: str = None):
+    if steep_component_content:
+        edit_content = steep_component_content
+    else:
+        edit_content = EXAMPLE_COMPONENT
     return f"""
 You are a pragmatic principal open-source frontend engineer specializing in the Vue ecosystem.
 You are about to get instructions for code to write.
@@ -51,37 +40,35 @@ YOUR TASK is to create a Vue component file according to the user query:
 ```
 {user_query}
 ```
-{available_components if available_components else ''}
 
-This is current content of component file:
-```
-{steep_component_content}
-```
+{available_components if available_components else ''}
 
 This is the parent component file: it uses the <Tea> component to render the component that you should create. Copy the style and syntax decisions but DO NOT COPY THIS COMPONENT VERBATIM. DO NOT COPY THE BELOW COMPONENT. FOLLOW THE INSTRUCTIONS FROM THE USER TO CREATE A NEW COMPONENT.
 ```
 {parent_file_content}
 ```
-{'Follow similar structure and patterns of this example component:```' + {example_content} + '```' if example_content else ''}
 
 You have access to the following packages:
 ```
 {packages}
 ```
 
-Output whole new file for {source_file} WITHIN ``` AND NOTHING ELSE. It will be saved as is to the component file {source_file} and should work out of the box.
-
-There should be NO MORE THAN 1 <script> tag, NO MORE THAN 1 <template> tag, and NO MORE THAN 1 <style> tag in the output file.
+Output whole new file for {source_file} WITHIN triple backticks (```) AND NOTHING ELSE. It will be saved as is to the component file {source_file} and should work out of the box.
 
 DO NOT add any new libraries or assume any classes that you don't see, other than those clearly used by the parent or child component or are present as available packages above. Put everything into this single file: styles, types, etc.
 Finally, please note that the code should be complete and fully functional. NO PLACEHOLDERS.
 Do not add any comments.
 The code you output will be written directly to a file, as-is. Any omission or deviation will completely break the system.
-DO NOT OMIT ANYTHING FOR BREVITY.
-DO NOT OMIT ANYTHING FOR BREVITY.
-DO NOT OMIT ANYTHING FOR BREVITY.
-DO NOT OMIT ANYTHING FOR BREVITY.
-DO NOT OMIT ANYTHING FOR BREVITY.
+DO NOT OMIT ANYTHING FOR BREVITY. NO PLACEHOLDERS. NO COMMENTS. NO OMISSIONS.
+DO NOT OMIT ANYTHING FOR BREVITY. NO PLACEHOLDERS. NO COMMENTS. NO OMISSIONS.
+DO NOT OMIT ANYTHING FOR BREVITY. NO PLACEHOLDERS. NO COMMENTS. NO OMISSIONS.
+DO NOT OMIT ANYTHING FOR BREVITY. NO PLACEHOLDERS. NO COMMENTS. NO OMISSIONS.
+DO NOT OMIT ANYTHING FOR BREVITY. NO PLACEHOLDERS. NO COMMENTS. NO OMISSIONS.
+
+Fill out/edit this component to comply with the user's query. Do not change the structure, just write code to make it work according to the user's query.
+```vue
+{edit_content}
+```
 """
 
 def write_double_check_prompt(generated_component_code: str, user_query: str, approved_string: str, available_components: str = None):
