@@ -9,6 +9,7 @@ string_list=(
     "deepseek-coder:6.7b-instruct-q4_0"
     "deepseek-coder:6.7b"
     "deepseek-coder:6.7b-instruct"
+    "mistral:v0.2"
 )
 if [ ! -f prompt.txt ]; then
     echo "Error: prompt.txt does not exist."

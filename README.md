@@ -1,5 +1,6 @@
 # Tea 🫖
 
+> ⚠️ **This project is in early development. I appreciate constructive feedback and help!** ⚠️
 ## Introduction
 
 Tea makes frontend Vue development as easy as making a cup of tea: just heat, steep, and pour. This tool allows you to utilize the power of local large language models to quickly create Vue3 components.
@@ -119,6 +120,7 @@ Key
 
 | Model                              | Quality | Time to complete |
 |------------------------------------|---------|------------------|
+| mistral:v0.2                       | M       | 14               |
 | deepseek-coder:6.7b-instruct-q4_0  | M       | 19               |
 | deepseek-coder:6.7b-instruct       | M       | 19               |
 | deepseek-coder:6.7b                | M       | 23               |
