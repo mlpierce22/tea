@@ -1,16 +1,25 @@
 import os
 import shutil
-import sys
 import time
-from pathlib import Path
+
 from agent import TeaAgent
-from helpers import CONFIG_DEFAULTS, EnvConfig, FileContext, Packages, SteepContext, TeaTag, extract_tag, get_packages, log
-from watcher import FileWatcher
+from helpers import (
+    CONFIG_DEFAULTS,
+    EnvConfig,
+    FileContext,
+    SteepContext,
+    TeaTag,
+    extract_tag,
+    get_packages,
+    log,
+)
 from langchain_community.llms.ollama import Ollama
-from langchain_openai import OpenAI
 from langchain_core.language_models.llms import BaseLLM
+from langchain_openai import OpenAI
+from watcher import FileWatcher
 
 watcher: FileWatcher = None
+
 
 class Main:
     def __init__(self, llm: BaseLLM, config: EnvConfig):
@@ -23,7 +32,7 @@ class Main:
         self.patterns = config.patterns
         self.root_directory = config.root_directory
         self.ignore_patterns = config.ignore_patterns
-    
+
     def run(self):
         log.info("Starting...")
 
@@ -56,11 +65,13 @@ class Main:
         """
         Steeps (WIP version) or Pours (finalizes) <Tea> components.
         """
-        tea_import_statement = f"import Tea from './cup/Tea.vue'"
+        tea_import_statement = "import Tea from './cup/Tea.vue'"
         extension = ctx.file_path.split(".")[-1]
-        
+
         steep_path = os.path.join(ctx.path_to_teacup_folder, "Steep." + extension)
-        loading_component_path = os.path.join(ctx.path_to_teacup_folder, "Heating." + extension)
+        loading_component_path = os.path.join(
+            ctx.path_to_teacup_folder, "Heating." + extension
+        )
         steep_content = ""
 
         if os.path.exists(steep_path):
@@ -116,6 +127,7 @@ class Main:
             # TODO: Only remove when no <Tea> tags are found in the repo in general
             shutil.rmtree(ctx.path_to_teacup_folder)
 
+
 def get_config_from_environment():
     """
     Returns a config dict from the environment variables.
@@ -123,7 +135,9 @@ def get_config_from_environment():
     config = EnvConfig(
         patterns=os.getenv("PATTERNS", CONFIG_DEFAULTS["PATTERNS"]).split(","),
         root_directory=os.getenv("ROOT_DIRECTORY", CONFIG_DEFAULTS["ROOT_DIRECTORY"]),
-        ignore_patterns=os.getenv("IGNORE_PATTERNS", CONFIG_DEFAULTS["IGNORE_PATTERNS"]).split(","),
+        ignore_patterns=os.getenv(
+            "IGNORE_PATTERNS", CONFIG_DEFAULTS["IGNORE_PATTERNS"]
+        ).split(","),
         model=os.getenv("MODEL", CONFIG_DEFAULTS["MODEL"]),
         temperature=float(os.getenv("TEMPERATURE", CONFIG_DEFAULTS["TEMPERATURE"])),
         base_url="http://" + os.getenv("OLLAMA_HOST", "localhost:11434"),
@@ -135,16 +149,28 @@ def get_config_from_environment():
 
     return config
 
+
 if __name__ == "__main__":
     if watcher:
         watcher.stop()
 
     config = get_config_from_environment()
     if config.openai_key:
-        model = "gpt-3.5-turbo-instruct" if config.model == CONFIG_DEFAULTS["MODEL"] else config.model
-        llm = OpenAI(model=model, temperature=config.temperature, api_key=config.openai_key, max_tokens=1000)
+        model = (
+            "gpt-3.5-turbo-instruct"
+            if config.model == CONFIG_DEFAULTS["MODEL"]
+            else config.model
+        )
+        llm = OpenAI(
+            model=model,
+            temperature=config.temperature,
+            api_key=config.openai_key,
+            max_tokens=1000,
+        )
     else:
-        llm = Ollama(model=config.model, temperature=config.temperature, base_url=config.base_url)
+        llm = Ollama(
+            model=config.model, temperature=config.temperature, base_url=config.base_url
+        )
 
     main = Main(llm=llm, config=config)
     main.run()

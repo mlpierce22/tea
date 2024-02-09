@@ -1,18 +1,21 @@
-import json5
+import logging
 import os
 import re
-from typing import Any, Dict, List, Literal, Union
-from pydantic import BaseModel
 from pathlib import Path
-import logging
+from typing import Any, Dict, List
+
+import json5
+from pydantic import BaseModel
 
 file_log = os.getenv("FILE_LOG_PATH", None)
 logging.basicConfig(filename=file_log, level=logging.INFO)
 log = logging.getLogger("Tea")
 
+
 class Packages(BaseModel):
     dependencies: Dict[str, str] | None
     devDependencies: Dict[str, str] | None
+
 
 class FileContext(BaseModel):
     path_to_teacup_folder: str
@@ -32,6 +35,7 @@ class TeaTag(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
+
 class SteepContext(FileContext):
     steep_path: str
     steep_content: str
@@ -39,14 +43,16 @@ class SteepContext(FileContext):
     tea_import_statement: str
     tea_tag: TeaTag
 
+
 class EnvConfig(BaseModel):
-        patterns: List[str]
-        root_directory: str
-        ignore_patterns: List[str]
-        model: str
-        temperature: float
-        base_url: str
-        openai_key: str | None
+    patterns: List[str]
+    root_directory: str
+    ignore_patterns: List[str]
+    model: str
+    temperature: float
+    base_url: str
+    openai_key: str | None
+
 
 CONFIG_DEFAULTS = {
     "MODEL": "deepseek-coder:6.7b-instruct",
@@ -55,6 +61,7 @@ CONFIG_DEFAULTS = {
     "PATTERNS": "*.vue",
     "IGNORE_PATTERNS": "Tea.vue,Steep.vue,Heating.vue",
 }
+
 
 def extract_tag(file_content, tag="\w+", attribute=""):
     """
@@ -79,6 +86,7 @@ def extract_tag(file_content, tag="\w+", attribute=""):
 
     return None
 
+
 def pour_tag(file_content: str, new_component_name: str):
     """
     Replaces a tag with the newly created component
@@ -88,19 +96,28 @@ def pour_tag(file_content: str, new_component_name: str):
     if match:
         tag, attributes, content, end_tag = match.groups()
         # Remove the pour attribute
-        new_attributes = re.sub(rf"pour=[\"']{new_component_name}[\"']", "", attributes).rstrip()
-        
-        return re.sub(script_pattern, f"<{new_component_name}{new_attributes}></{new_component_name}>", file_content)
+        new_attributes = re.sub(
+            rf"pour=[\"']{new_component_name}[\"']", "", attributes
+        ).rstrip()
+
+        return re.sub(
+            script_pattern,
+            f"<{new_component_name}{new_attributes}></{new_component_name}>",
+            file_content,
+        )
     else:
         # No script tag found, return original file content
         return file_content
 
-def set_import(file_content: str, import_statement: str, remove=False) -> tuple[str, bool]:
+
+def set_import(
+    file_content: str, import_statement: str, remove=False
+) -> tuple[str, bool]:
     # Pattern to match the script tag and any content inside it
     script_pattern = r"(<script[^>]*>)([\s\S]*?)(<\/script>)"
     # Pattern to match import statements
     import_pattern = r"(import .*?;)"
-    
+
     def add_import(script_content: str) -> str:
         # Check if the import statement already exists
         if import_statement in script_content:
@@ -111,10 +128,12 @@ def set_import(file_content: str, import_statement: str, remove=False) -> tuple[
         if existing_imports:
             # Add the new import after the last existing import
             last_import = existing_imports[-1]
-            return script_content.replace(last_import, last_import + '\n' + import_statement)
+            return script_content.replace(
+                last_import, last_import + "\n" + import_statement
+            )
         else:
             # No existing imports, add after <script> tag
-            return '\n' + import_statement + '\n' + script_content
+            return "\n" + import_statement + "\n" + script_content
 
     def remove_import(script_content: str) -> str:
         # Remove the specified import statement
@@ -124,13 +143,25 @@ def set_import(file_content: str, import_statement: str, remove=False) -> tuple[
     match = re.search(script_pattern, file_content)
     if match:
         script_tag, script_content, script_end_tag = match.groups()
-        new_script_content = remove_import(script_content) if remove else add_import(script_content)
+        new_script_content = (
+            remove_import(script_content) if remove else add_import(script_content)
+        )
         # Replace old script content with new script content
-        return file_content.replace(script_tag + script_content + script_end_tag, script_tag + new_script_content + script_end_tag), True
+        return (
+            file_content.replace(
+                script_tag + script_content + script_end_tag,
+                script_tag + new_script_content + script_end_tag,
+            ),
+            True,
+        )
     else:
         # If no script tag is found, add one with the import if it's not being removed
-        return (file_content, False) if remove else (f"\n<script setup>\n{import_statement}\n</T>\n{file_content}", True)
-    
+        return (
+            (file_content, False)
+            if remove
+            else (f"\n<script setup>\n{import_statement}\n</T>\n{file_content}", True)
+        )
+
 
 def get_packages(root_directory: str) -> Packages:
     """
@@ -142,7 +173,8 @@ def get_packages(root_directory: str) -> Packages:
             dependencies=package_json.get("dependencies", None),
             devDependencies=package_json.get("devDependencies", None),
         )
-    
+
+
 def get_ts_configs(root_directory: str, file_name: str) -> Dict[str, Any]:
     """
     Gets the ts configs from the tsconfig.json file
@@ -159,7 +191,8 @@ def get_ts_configs(root_directory: str, file_name: str) -> Dict[str, Any]:
             return extended
         else:
             return tsconfig_json
-        
+
+
 def get_paths_from_tsconfig(root_directory: str) -> Dict[str, List[str]]:
     """
     Gets the paths from the tsconfig.json file
@@ -169,13 +202,14 @@ def get_paths_from_tsconfig(root_directory: str) -> Dict[str, List[str]]:
         return tsconfig_json["compilerOptions"]["paths"]
     else:
         return {}
-    
+
+
 def get_available_components(root_directory: str):
     is_nuxt = ".nuxt" in os.listdir(root_directory)
 
     if is_nuxt:
         nuxt_components = Path(root_directory, ".nuxt/components.d.ts")
-        reg = r'export const ([^:]+): [^\n]*'
+        reg = r"export const ([^:]+): [^\n]*"
         if nuxt_components.exists():
             with open(nuxt_components, "r") as nuxt_components_file:
                 file_content = nuxt_components_file.read()

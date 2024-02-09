@@ -1,15 +1,17 @@
-
-from typing import List
-
-from pydantic import BaseModel, Field
 from helpers import Packages
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field
 
+
 class ComponentLocation(BaseModel):
-    logical_path: str = Field(description="The full logical path to the component file. e.g. /full/path/to/component/MyComponent.vue")
-    import_statement_from_root: str = Field(description="The import statement from the root of the project. e.g. ~/components/MyComponent.vue")
+    logical_path: str = Field(
+        description="The full logical path to the component file. e.g. /full/path/to/component/MyComponent.vue"
+    )
+    import_statement_from_root: str = Field(
+        description="The import statement from the root of the project. e.g. ~/components/MyComponent.vue"
+    )
+
 
 EXAMPLE_COMPONENT = """
 <script setup lang="ts">
@@ -25,7 +27,15 @@ EXAMPLE_COMPONENT = """
 </style>
 """
 
-def write_component_prompt(user_query: str, steep_component_content: str, parent_file_content: str, packages: Packages, source_file: str, available_components: str = None):
+
+def write_component_prompt(
+    user_query: str,
+    steep_component_content: str,
+    parent_file_content: str,
+    packages: Packages,
+    source_file: str,
+    available_components: str = None,
+):
     if steep_component_content:
         edit_content = steep_component_content
     else:
@@ -72,9 +82,10 @@ Fill out/edit this component to comply with the user's query. Do not change the 
 ```
 """
 
+
 def make_component_output_parser() -> JsonOutputParser:
     """
-        Builds the output parser for use in the chain
+    Builds the output parser for use in the chain
     """
 
     return JsonOutputParser(pydantic_object=ComponentLocation)
@@ -82,7 +93,7 @@ def make_component_output_parser() -> JsonOutputParser:
 
 def write_component_location_prompt(parser: JsonOutputParser):
     """
-        Constructs a prompt template for using when determining where to put the component file
+    Constructs a prompt template for using when determining where to put the component file
     """
 
     template = """
@@ -111,10 +122,15 @@ Determine the BEST, MOST LOGICAL PATH for the new component file. Choose a compo
 
 {format_instructions}
     """
-    
+
     return PromptTemplate(
         template=template,
-        input_variables=["component_name", "parent_component_path", "path_aliases", "root_files", "root_path"],
-        partial_variables={
-            "format_instructions": parser.get_format_instructions()
-    })
+        input_variables=[
+            "component_name",
+            "parent_component_path",
+            "path_aliases",
+            "root_files",
+            "root_path",
+        ],
+        partial_variables={"format_instructions": parser.get_format_instructions()},
+    )

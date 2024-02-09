@@ -1,5 +1,5 @@
 def create_tea_component() -> str:
-    return f"""
+    return """
 <script setup>
 import Steep from './Steep.vue'
 </script>
@@ -9,8 +9,9 @@ import Steep from './Steep.vue'
 </template>
 """
 
+
 def create_steep_component() -> str:
-    return f"""
+    return """
 <script setup>
 // Remove this import when removing the Heating component!
 import Heating from './Heating.vue'
@@ -25,6 +26,7 @@ import Heating from './Heating.vue'
 <style scoped>
 </style>
 """
+
 
 def create_loading_component() -> str:
     return """
@@ -78,5 +80,3 @@ def create_loading_component() -> str:
 }
 </style>
 """
-
-

@@ -1,11 +1,13 @@
-from threading import Thread
-import pathlib
 import fnmatch
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-import igittigitt
+import pathlib
 from itertools import islice
+from threading import Thread
+
+import igittigitt
 from helpers import log
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
+
 
 class FileWatcher:
     def __init__(self, root_directory, watch_patterns=None, ignore_patterns=None):
