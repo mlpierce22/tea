@@ -44,8 +44,8 @@ class TeaAgent():
         component_location_parser = make_component_output_parser()
         component_location_prompt = write_component_location_prompt(component_location_parser)
         paths = get_paths_from_tsconfig(ctx.root_directory)
-        log.info("The prompt!")
-        log.info(component_location_prompt.format(**{
+        log.debug("Using the following prompt:")
+        log.debug(component_location_prompt.format(**{
             "component_name": component_name,
             "path_aliases": paths, 
             "root_files": os.listdir(ctx.root_directory), 
@@ -66,16 +66,11 @@ class TeaAgent():
                 "parent_component_path": ctx.file_path,
                 "root_path": ctx.root_directory,
             })
-
-            log.info("The response!")
-            log.info(full_response)
             try:
                 output_dict: dict = component_location_parser.parse(full_response)
                 # Defensively protect in case model outputs wrong format
                 if output_dict.get("properties", None) is not None:
                     output_dict = output_dict["properties"]
-                log.info("The output dict!")
-                log.info(output_dict)
                 return output_dict
             except Exception as e:
                 if retries > 0:
@@ -84,8 +79,8 @@ class TeaAgent():
                     raise e
 
         output_dict: dict = handle_response()
-        log.info("The output dict!")
-        log.info(output_dict)
+        log.debug("Output from location path prompt:")
+        log.debug(output_dict)
         
         # Now that we have the paths, we just have to do some writing and cleanup
         # First, make the component at the path (create directories if need be)
@@ -133,8 +128,8 @@ class TeaAgent():
             packages=ctx.packages.model_dump(exclude_none=True),
             source_file=ctx.steep_path,
         )
-        log.info("The prompt!")
-        log.info(prompt)
+        log.debug("Steeping with the following prompt:")
+        log.debug(prompt)
 
         # Add the import to the top of the file
         modified = False
