@@ -5,12 +5,8 @@ WORKDIR /home
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/ || exit 1
 
-# Create a non-root user and switch to it
-RUN useradd -m tea
-USER tea
-
 # Install parallel
-RUN apt-get update && apt-get install -y parallel=20231222 --no-install-recommends && \
+RUN apt-get update && apt-get install -y parallel=20221122+ds-2 --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
 # Alias python3 to python
@@ -21,11 +17,16 @@ COPY app app
 COPY requirements.txt requirements.txt
 COPY run_local.sh run_local.sh
 
+
 # Set SHELL to use pipefail
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install ollama command line tool
 RUN curl https://ollama.ai/install.sh | sh
+
+# Create a non-root user and switch to it
+RUN useradd -m tea
+USER tea
 
 ENV ROOT_DIRECTORY="/mount"
 # ENV FILE_LOG_PATH="/home/tea-output.log"

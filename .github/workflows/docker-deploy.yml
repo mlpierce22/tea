@@ -1,7 +1,7 @@
 name: Build and Deploy Docker Image
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 on:
@@ -39,3 +39,12 @@ jobs:
       - name: Output Docker image name
         run: |
           echo "Docker image name: mlpierce22/tea:${{ steps.sha.outputs.short_sha }}"
+
+      - name: Update Readme with Docker image name
+        run: sed -i "s/mlpierce22\/tea:.*/mlpierce22\/tea:${{ steps.sha.outputs.short_sha }}/" README.md
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Updated Docker image to mlpierce22\/tea:${{ steps.sha.outputs.short_sha }}
+          branch: main
+          commit_user_name: GitHub Actions
