@@ -45,6 +45,6 @@ jobs:
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Updated Docker image to mlpierce22\/tea:${{ steps.sha.outputs.short_sha }}
+          commit_message: Updated Docker image to mlpierce22/tea:${{ steps.sha.outputs.short_sha }}
           branch: main
           commit_user_name: GitHub Actions
