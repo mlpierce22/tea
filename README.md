@@ -36,7 +36,7 @@ docker run -d \
     -v $(pwd):/mount \
     -p 11434:11434 \
     -e MODEL=deepseek-coder:6.7b-instruct \
-    --name tea mlpierce22/tea:d15d8a4
+    --name tea mlpierce22/tea:aa53641
 ```
 
 3. Add a `<Tea>` component into your `Vue` template like you were creating a component and save. Generation should begin!
