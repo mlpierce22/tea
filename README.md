@@ -8,17 +8,17 @@ Tea makes frontend Vue development as easy as making a cup of tea: just heat, st
 
 ## Table of Contents
 
-- [Introduction](#Introduction)
-- [Usage](#Usage)
-- [Examples](#Examples)
-- [Features](#Features)
-- [Configuration](#Configuration)
-- [Choosing a Model](#Choosing-a-Model)
-- [Improvements](#Improvements)
-- [Contributors](#Contributors)
-- [Inspirations](#Inspirations)
-- [Connect](#Connect)
-- [License](#License)
+- [Introduction](#introduction)
+- [Usage](#usage)
+- [Examples](#examples)
+- [Features](#features)
+- [Configuration](#configuration)
+- [Choosing a Model](#choosing-a-model)
+- [Improvements](#improvements)
+- [Contributors](#contributors)
+- [Inspirations](#inspirations)
+- [Connect](#connect)
+- [License](#license)
 
 ## Usage
 
@@ -42,7 +42,7 @@ docker run -d \
 3. Add a `<Tea>` component into your `Vue` template like you were creating a component and save. Generation should begin!
 4. When you have generated to your heart's content, you can pour the tea by adding the `pour` prop like `pour="ComponentName"` and it will generate a component with that name, replacing the Tea component.
 
-## Examples:
+## Examples
 
 ### Generating a Tea component
 
