@@ -126,7 +126,17 @@ class Main:
             log.info(f"No <Tea> tag found in {file_path}")
             # Remove the teacup directory and everything inside it
             # TODO: Only remove when no <Tea> tags are found in the repo in general
+            log.warning(f"Removing {path_to_teacup_folder}...")
             shutil.rmtree(ctx.path_to_teacup_folder)
+
+            # Remove import from file
+            file_content_no_import, _ = set_import(
+                ctx.file_content, tea_import_statement, remove=True
+            )
+
+            # Write the updated content without the import
+            with open(file_path, "w") as file:
+                file.write(file_content_no_import)
 
 
 def get_config_from_environment():
