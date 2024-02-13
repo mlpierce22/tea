@@ -6,12 +6,42 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 
 class ComponentLocation(BaseModel):
     logical_path: str = Field(
-        description="The full logical path to the component file. e.g. /full/path/to/component/MyComponent.vue"
+        description="The full logical path to the component file. There should NEVER be a special character in the path unless it is defined in the root directory! e.g. /full/path/to/component/MyComponent.vue"
     )
     import_statement_from_root: str = Field(
         description="The import statement from the root of the project. e.g. ~/components/MyComponent.vue"
     )
 
+
+LOGICAL_PATH_EXAMPLES = """
+Examples of VALID logical paths:
+```
+/full/path/to/component/MyComponent.vue
+/full/path@user/to/component/MyComponent.vue
+/full/path~special~/to/component/MyComponent.vue
+```
+
+Examples of INVALID logical paths:
+/full/path/to/~/component/MyComponent.vue
+/full/path/to/@/component/MyComponent.vue
+/full/path/to/component/MyComponent
+"""
+
+IMPORT_STATEMENT_EXAMPLES = """
+Examples of potentially VALID import paths:
+```
+"~/components/MyComponent.vue"
+"@/components/MyComponent.vue"
+"../components/MyComponent.vue"
+"./components/MyComponent.vue"
+```
+Examples of INVALID import paths:
+```
+"~/components/MyComponent"
+"/full/path/to/component/MyComponent.vue"
+"/components/MyComponent.vue"
+```
+"""
 
 EXAMPLE_COMPONENT = """
 <script setup lang="ts">
@@ -25,6 +55,35 @@ EXAMPLE_COMPONENT = """
 <!-- Put styles below if necessary! Remove this when generating code -->
 <style scoped>
 </style>
+"""
+
+EXAMPLE_PROP = """
+const props = defineProps({
+    foo: {
+        type: String,
+        required: true,
+    },
+    bar: {
+        type: Number,
+        default: 0,
+    },
+});
+// Usage of above: props.foo, props.bar
+
+const { foo, bar } = defineProps({
+    foo: {
+        type: String,
+        required: true,
+    },
+    bar: {
+        type: Number,
+        default: 0,
+    },
+});
+// Usage of above: foo, bar
+
+const { foo, bar } = toRefs(props);
+// Usage of above: foo.value, bar.value
 """
 
 
@@ -46,6 +105,7 @@ You are a pragmatic principal open-source frontend engineer specializing in the 
 You are about to get instructions for code to write.
 This code must be as simple and easy to understand, while still fully expressing the functionality required.
 Please note that the code should be complete and fully functional. NO PLACEHOLDERS. NO OMISSIONS.
+Always extract event handlers and other functions into methods or computed properties.
 DO NOT OMIT ANYTHING FOR BREVITY as the code you output will be written directly to a file, as-is.
 YOUR TASK is to create a Vue component file according to the user query:
 ```
@@ -64,9 +124,15 @@ You have access to the following packages:
 {packages}
 ```
 
+ALWAYS defined and use props passed into the tea component. DO NOT assume any props are present unless they are passed in from the parent component. IF there are props defined use one of the following patterns when declaring and using them:
+```
+{EXAMPLE_PROP}
+```
+
 Output whole new file for {source_file} WITHIN triple backticks (```) AND NOTHING ELSE. It will be saved as is to the component file {source_file} and should work out of the box.
 
 DO NOT add any new libraries or assume any classes that you don't see, other than those clearly used by the parent or child component or are present as available packages above. Put everything into this single file: styles, types, etc.
+
 Finally, please note that the code should be complete and fully functional. NO PLACEHOLDERS.
 Do not add any comments.
 The code you output will be written directly to a file, as-is. Any omission or deviation will completely break the system.
@@ -120,6 +186,10 @@ Here are the files located at the root of the project:
 
 Determine the BEST, MOST LOGICAL PATH for the new component file. Choose a component directory if it exists, otherwise put it close to the parent component so it is easy to find. DO NOT WRITE CODE. KEEP YOUR RESPONSE SHORT AND COMPLY WITH THE FORMAT BELOW.
 
+{logical_path_examples}
+
+{import_statement_examples}
+
 {format_instructions}
     """
 
@@ -131,6 +201,8 @@ Determine the BEST, MOST LOGICAL PATH for the new component file. Choose a compo
             "path_aliases",
             "root_files",
             "root_path",
+            "logical_path_examples",
+            "import_statement_examples",
         ],
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )

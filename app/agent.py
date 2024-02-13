@@ -20,6 +20,8 @@ from helpers import (
 from langchain_core.language_models.llms import BaseLLM
 from langchain_core.runnables import RunnableSerializable
 from prompt import (
+    IMPORT_STATEMENT_EXAMPLES,
+    LOGICAL_PATH_EXAMPLES,
     make_component_output_parser,
     write_component_location_prompt,
     write_component_prompt,
@@ -71,6 +73,8 @@ class TeaAgent:
                     "root_files": os.listdir(ctx.root_directory),
                     "parent_component_path": ctx.file_path,
                     "root_path": ctx.root_directory,
+                    "logical_path_examples": LOGICAL_PATH_EXAMPLES,
+                    "import_statement_examples": IMPORT_STATEMENT_EXAMPLES,
                 }
             )
         )
@@ -88,6 +92,8 @@ class TeaAgent:
                     "root_files": os.listdir(ctx.root_directory),
                     "parent_component_path": ctx.file_path,
                     "root_path": ctx.root_directory,
+                    "logical_path_examples": LOGICAL_PATH_EXAMPLES,
+                    "import_statement_examples": IMPORT_STATEMENT_EXAMPLES,
                 },
             )
             try:
@@ -110,6 +116,14 @@ class TeaAgent:
         # First, make the component at the path (create directories if need be)
         logical_path = str(output_dict["logical_path"])
         import_statement = f"import {component_name} from \"{output_dict['import_statement_from_root']}\""
+
+        # Add .vue onto the end if the model messed up
+        if logical_path[-4:] != ".vue":
+            logical_path += '.vue"'
+
+        # Add .vue onto the end if the model messed up
+        if import_statement[-5:] != '.vue"':
+            import_statement += '.vue"'
 
         new_component_path = Path(logical_path)
         new_component_path.parent.mkdir(parents=True, exist_ok=True)
