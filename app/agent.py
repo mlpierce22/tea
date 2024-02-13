@@ -51,7 +51,7 @@ class TeaAgent:
             response += chunk
 
         self.print_chunk("\n\n\n-------\n\n\n")
-        log.info(response)
+        log.debug(response)
         return response
 
     def pour(self, component_name: str, ctx: SteepContext):

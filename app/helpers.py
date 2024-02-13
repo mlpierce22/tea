@@ -8,7 +8,8 @@ import json5
 from pydantic import BaseModel
 
 file_log = os.getenv("FILE_LOG_PATH", None)
-logging.basicConfig(filename=file_log, level=logging.INFO)
+log_level = os.getenv("LOG_LEVEL", "INFO")
+logging.basicConfig(filename=file_log, level=getattr(logging, log_level.upper()))
 log = logging.getLogger("Tea")
 
 
@@ -51,11 +52,13 @@ class EnvConfig(BaseModel):
     model: str
     temperature: float
     base_url: str
+    log_level: str
     openai_key: str | None
 
 
 CONFIG_DEFAULTS = {
     "MODEL": "deepseek-coder:6.7b-instruct",
+    "LOG_LEVEL": "INFO",
     "ROOT_DIRECTORY": None,
     "TEMPERATURE": "0.5",
     "PATTERNS": "*.vue",

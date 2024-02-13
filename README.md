@@ -121,6 +121,9 @@ Currently, Tea accepts environment variables to determine it's behavior.
   - **Default**: the working directory of the docker run command
 - `TEMPERATURE`: Helpful if you want the model to be more ✨creative✨
   - **Default**: 0.5
+- `LOG_LEVEL`: Set the log level for the container
+  - **Options**: `DEBUG`, `INFO`, `WARNING`
+  - **Default**: `INFO`
 
 ## Choosing a Model
 

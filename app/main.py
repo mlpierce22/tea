@@ -57,7 +57,7 @@ class Main:
                     time.sleep(1)
                     prev_inc = watcher.last_modified_file_inc
         except KeyboardInterrupt:
-            log.info("Stopping...")
+            log.warning("Stopping...")
             watcher.stop()
             exit()
 
@@ -142,6 +142,7 @@ def get_config_from_environment():
         temperature=float(os.getenv("TEMPERATURE", CONFIG_DEFAULTS["TEMPERATURE"])),
         base_url="http://" + os.getenv("OLLAMA_HOST", "localhost:11434"),
         openai_key=os.getenv("OPENAI_KEY", None),
+        log_level=os.getenv("LOG_LEVEL", CONFIG_DEFAULTS["LOG_LEVEL"]),
     )
 
     if not config.root_directory:
