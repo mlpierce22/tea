@@ -218,9 +218,14 @@ def get_available_components(root_directory: str):
         if nuxt_components.exists():
             with open(nuxt_components, "r") as nuxt_components_file:
                 file_content = nuxt_components_file.read()
-                matches = re.findall(reg, file_content)
+                matches: List[str] = re.findall(reg, file_content)
                 if matches:
-                    first_lazy_index = matches.index(lambda x: x.startswith("Lazy"))
+                    # Iterate through matches until we find the first lazy component
+                    first_lazy_index = next(
+                        (i for i, x in enumerate(matches) if x.startswith("Lazy")), None
+                    )
+
+                    # remove from the first lazy component onwards, since those are all generated automatically and don't need to take up context
                     matches = matches[:first_lazy_index]
                     return f"""
                     This is a Nuxt.js project. COMPONENTS ARE AUTOMATICALLY IMPORTED. DO NOT INCLUDE AN IMPORT STATEMENT WHEN USING THESE COMPONENTS! You have the following components globally available for you. DO NOT IMPORT THESE COMPONENTS:

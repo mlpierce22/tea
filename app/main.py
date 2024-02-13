@@ -96,7 +96,7 @@ class Main:
             log.info("Steeping new component...")
             self.tea_agent.steep(ctx=steep_ctx)
 
-    def process_file(self, file_path, root_directory=None):
+    def process_file(self, file_path: str, root_directory=None):
         """
         Detects and processes <Tea> tags.
         """
