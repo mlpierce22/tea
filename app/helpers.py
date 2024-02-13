@@ -228,7 +228,7 @@ def get_available_components(root_directory: str):
                     # remove from the first lazy component onwards, since those are all generated automatically and don't need to take up context
                     matches = matches[:first_lazy_index]
                     return f"""
-                    This is a Nuxt.js project. COMPONENTS ARE AUTOMATICALLY IMPORTED. DO NOT INCLUDE AN IMPORT STATEMENT WHEN USING THESE COMPONENTS! You have the following components globally available for you. DO NOT IMPORT THESE COMPONENTS:
+This is a Nuxt.js project. COMPONENTS ARE AUTOMATICALLY IMPORTED. DO NOT INCLUDE AN IMPORT STATEMENT WHEN USING THESE COMPONENTS! You have the following components globally available for you. DO NOT IMPORT THESE COMPONENTS:
                     ```
                     {','.join(matches)}
                     ```
