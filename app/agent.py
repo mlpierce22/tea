@@ -198,8 +198,13 @@ class TeaAgent:
 
         full_response = self._process_response(self.llm, prompt)
 
-        # Grab the code from between the backticks
-        code = full_response.split("```")[1].strip("\n")
+        try:
+            # Grab the code from between the backticks
+            code = full_response.split("```")[1].strip("\n")
+        except Exception as e:
+            log.error("Failed to get code from response. Please try again")
+            log.error(e)
+            return
 
         # If the first 3 letters are "vue" then we need to remove them (It adds it to type the markdown)
         if code[:3] == "vue":
