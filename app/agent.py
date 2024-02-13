@@ -17,7 +17,9 @@ from helpers import (
     pour_tag,
     set_import,
 )
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM
+from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import RunnableSerializable
 from prompt import (
     IMPORT_STATEMENT_EXAMPLES,
@@ -35,7 +37,7 @@ class TeaAgent:
     2. Pour - pour the tea into a component, removes the steeped tea
     """
 
-    def __init__(self, llm: BaseLLM = None):
+    def __init__(self, llm: Union[BaseLLM, BaseChatModel] = None):
         self.llm = llm
 
     def print_chunk(self, chunk: str, end: str = ""):
@@ -49,10 +51,14 @@ class TeaAgent:
     ) -> str:
         response = ""
         for chunk in chain.stream(args):
-            self.print_chunk(chunk)
-            response += chunk
+            if isinstance(chunk, str):
+                self.print_chunk(chunk)
+                response += chunk
+            elif isinstance(chunk, AIMessageChunk):
+                self.print_chunk(chunk.content)
+                response += chunk.content
 
-        self.print_chunk("\n\n\n-------\n\n\n")
+        self.print_chunk("\n-------\n")
         log.debug(response)
         return response
 

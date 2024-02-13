@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+from typing import Union
 
 from agent import TeaAgent
 from helpers import (
@@ -16,15 +17,16 @@ from helpers import (
     tea_import_statement,
 )
 from langchain_community.llms.ollama import Ollama
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM
-from langchain_openai import OpenAI
+from langchain_openai import ChatOpenAI
 from watcher import FileWatcher
 
 watcher: FileWatcher = None
 
 
 class Main:
-    def __init__(self, llm: BaseLLM, config: EnvConfig):
+    def __init__(self, llm: Union[BaseLLM, BaseChatModel], config: EnvConfig):
         if llm:
             self.llm = llm
         else:
@@ -169,11 +171,11 @@ if __name__ == "__main__":
     config = get_config_from_environment()
     if config.openai_key:
         model = (
-            "gpt-3.5-turbo-instruct"
+            "gpt-3.5-turbo"
             if config.model == CONFIG_DEFAULTS["MODEL"]
             else config.model
         )
-        llm = OpenAI(
+        llm = ChatOpenAI(
             model=model,
             temperature=config.temperature,
             api_key=config.openai_key,
