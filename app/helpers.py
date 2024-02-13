@@ -56,6 +56,8 @@ class EnvConfig(BaseModel):
     openai_key: str | None
 
 
+tea_import_statement = "import Tea from './cup/Tea.vue'"
+
 CONFIG_DEFAULTS = {
     "MODEL": "deepseek-coder:6.7b-instruct",
     "LOG_LEVEL": "INFO",

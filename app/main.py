@@ -12,6 +12,8 @@ from helpers import (
     extract_tag,
     get_packages,
     log,
+    set_import,
+    tea_import_statement,
 )
 from langchain_community.llms.ollama import Ollama
 from langchain_core.language_models.llms import BaseLLM
@@ -65,7 +67,6 @@ class Main:
         """
         Steeps (WIP version) or Pours (finalizes) <Tea> components.
         """
-        tea_import_statement = "import Tea from './cup/Tea.vue'"
         extension = ctx.file_path.split(".")[-1]
 
         steep_path = os.path.join(ctx.path_to_teacup_folder, "Steep." + extension)
