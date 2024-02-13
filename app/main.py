@@ -94,9 +94,11 @@ class Main:
         if pour:
             log.info(f"Pouring {pour} component...")
             self.tea_agent.pour(component_name=pour, ctx=steep_ctx)
+            self.tea_agent.print_costs()
         else:
             log.info("Steeping new component...")
             self.tea_agent.steep(ctx=steep_ctx)
+            self.tea_agent.print_costs()
 
     def process_file(self, file_path: str, root_directory=None):
         """
@@ -176,6 +178,7 @@ if __name__ == "__main__":
             else config.model
         )
         llm = ChatOpenAI(
+            name=model,
             model=model,
             temperature=config.temperature,
             api_key=config.openai_key,
@@ -183,7 +186,10 @@ if __name__ == "__main__":
         )
     else:
         llm = Ollama(
-            model=config.model, temperature=config.temperature, base_url=config.base_url
+            name=config.model,
+            model=config.model,
+            temperature=config.temperature,
+            base_url=config.base_url,
         )
 
     main = Main(llm=llm, config=config)

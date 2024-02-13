@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 from typing import Dict, Union
 
+import tiktoken
 from component_creation import (
     create_loading_component,
     create_steep_component,
@@ -17,6 +18,7 @@ from helpers import (
     pour_tag,
     set_import,
 )
+from langchain_community.callbacks.openai_info import get_openai_token_cost_for_model
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM
 from langchain_core.messages import AIMessageChunk
@@ -39,12 +41,37 @@ class TeaAgent:
 
     def __init__(self, llm: Union[BaseLLM, BaseChatModel] = None):
         self.llm = llm
+        self.input_prompt = None
+        self.model_response = None
 
     def print_chunk(self, chunk: str, end: str = ""):
         if file_log:
             print(chunk, end=end, flush=True, file=file_log)
         else:
             print(chunk, end=end, flush=True)
+
+    def print_costs(self):
+        """
+        Prints the cost of the text in USD
+        """
+        input_cost = self._get_cost(self.input_prompt)
+        output_cost = self._get_cost(self.model_response)
+        log.info(
+            f"The prompt costs: {input_cost} and the response costs: ${output_cost} USD."
+        )
+        log.info(f"Total cost: ${input_cost + output_cost} USD.")
+
+    def _get_cost(self, text: str) -> float:
+        """
+        Returns the cost of the text as a float
+        """
+        try:
+            enc = tiktoken.encoding_for_model(self.llm.name)
+            num_tokens = len(enc.encode(text))
+            return get_openai_token_cost_for_model(self.llm.name, num_tokens)
+        except Exception:
+            log.info(f"Can't get cost for model called {self.llm.name}")
+            return 0.00
 
     def _process_response(
         self, chain: RunnableSerializable, args: Union[Dict, str]
@@ -59,8 +86,9 @@ class TeaAgent:
                 response += chunk.content
 
         self.print_chunk("\n-------\n")
-        log.debug(response)
-        return response
+        self.model_response = response
+        log.debug(self.model_response)
+        return self.model_response
 
     def pour(self, component_name: str, ctx: SteepContext):
         log.info("Pouring tea...")
@@ -70,20 +98,20 @@ class TeaAgent:
             component_location_parser
         )
         paths = get_paths_from_tsconfig(ctx.root_directory)
-        log.debug("Using the following prompt:")
-        log.debug(
-            component_location_prompt.format(
-                **{
-                    "component_name": component_name,
-                    "path_aliases": paths,
-                    "root_files": os.listdir(ctx.root_directory),
-                    "parent_component_path": ctx.file_path,
-                    "root_path": ctx.root_directory,
-                    "logical_path_examples": LOGICAL_PATH_EXAMPLES,
-                    "import_statement_examples": IMPORT_STATEMENT_EXAMPLES,
-                }
-            )
+        self.input_prompt = component_location_prompt.format(
+            **{
+                "component_name": component_name,
+                "path_aliases": paths,
+                "root_files": os.listdir(ctx.root_directory),
+                "parent_component_path": ctx.file_path,
+                "root_path": ctx.root_directory,
+                "logical_path_examples": LOGICAL_PATH_EXAMPLES,
+                "import_statement_examples": IMPORT_STATEMENT_EXAMPLES,
+            }
         )
+        log.debug("Using the following prompt:")
+        log.debug(self.input_prompt)
+
         chain = component_location_prompt | self.llm
 
         def handle_response(retries=2):
@@ -168,7 +196,7 @@ class TeaAgent:
         tea_component = create_tea_component()
         available_components = get_available_components(ctx.root_directory)
 
-        prompt = write_component_prompt(
+        self.input_prompt = write_component_prompt(
             user_query=ctx.tea_tag.children,
             steep_component_content=ctx.steep_content,
             parent_file_content=ctx.file_content,
@@ -177,7 +205,7 @@ class TeaAgent:
             source_file=ctx.steep_path,
         )
         log.debug("Steeping with the following prompt:")
-        log.debug(prompt)
+        log.debug(self.input_prompt)
 
         # Add the import to the top of the file
         modified = False
@@ -202,7 +230,7 @@ class TeaAgent:
         # Now the component is heating, this is where we ask the llm for code
         log.info("Creating component. This could take a while...")
 
-        full_response = self._process_response(self.llm, prompt)
+        full_response = self._process_response(self.llm, self.input_prompt)
 
         try:
             # Grab the code from between the backticks
