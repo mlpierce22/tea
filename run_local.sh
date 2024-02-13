@@ -15,20 +15,19 @@ run_watcher() {
 }
 
 run_ollama() {
-	# Check if the OPENAI_KEY environment variable is not set before running ollama
-	if [[ -z ${OPENAI_KEY} ]]; then
-		echo "Running ollama with model ${MODEL}"
-		ollama run "${MODEL}"
-	else
-		echo "Skipping ollama run due to OPENAI_KEY being set"
-	fi
+	echo "Running ollama with model ${MODEL}"
+	ollama run "${MODEL}"
 }
 
-# Pull the model first
-ollama pull "${MODEL}"
-
 # Store the names of the task functions in an array
-tasks=(run_watcher run_ollama) # Add more task names to this array as needed
+tasks=(run_watcher)
+if [[ -z ${OPENAI_KEY} ]]; then
+	# Pull the model first if OPENAI_KEY is not set
+	ollama pull "${MODEL}"
+	tasks+=(run_ollama)
+else
+	echo "Skipping ollama run due to OPENAI_KEY being set"
+fi
 
 # Export the functions
 for task in "${tasks[@]}"; do
@@ -36,4 +35,4 @@ for task in "${tasks[@]}"; do
 done
 
 # Run the tasks in parallel with --line-buffer for immediate output and --halt now,fail=1 to stop immediately on failure
-parallel --line-buffer --halt now,fail=1 ::: run_watcher run_ollama
+parallel --line-buffer --halt now,fail=1 ::: "${tasks[@]}"
