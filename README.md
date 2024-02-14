@@ -6,6 +6,20 @@
 
 Tea makes frontend Vue development as easy as making a cup of tea: just heat, steep, and pour. This tool allows you to utilize the power of local large language models to quickly create Vue3 components.
 
+## Demos
+
+### Running 100% locally on a Macbook Pro, 18GB GPU
+
+<video src="videos/local-only-generation.mp4" alt="Tea Demo with Local Model"></video>
+
+> The generation in this video is REAL TIME. I only sped up the sections of the video where I was typing!
+
+### Running via GPT-3.5
+
+<video src="videos/gpt-3.5-generation.mp4" alt="Tea Demo with GPT-3.5"></video>
+
+> The generation in this video is REAL TIME. I only sped up the sections of the video where I was typing!
+
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -21,6 +35,8 @@ Tea makes frontend Vue development as easy as making a cup of tea: just heat, st
 - [License](#license)
 
 ## Usage
+
+### Running locally
 
 0. For now, this project assumes you...
    1. Have a GPU. While this will work on a CPU, it is much much slower, which will likely significantly effect your experience.
@@ -130,8 +146,8 @@ Becomes
 
 Currently, Tea accepts environment variables to determine it's behavior.
 
-- `MODEL`: Choose from any model on [https://ollama.ai/library](https://ollama.ai/library). See [Choosing a model](#Choosing-a-Model)
-  - **Default**: `deepseek-coder:6.7b-instruct`
+- `MODEL`: Choose from any model on [https://ollama.ai/library](https://ollama.ai/library). See [Choosing a model](#Choosing-a-Model) or any OpenAI model if you have an OpenAI key set.
+  - **Default**: `deepseek-coder:6.7b-instruct` OR `gpt-3.5-turbo`
 - `OPENAI_KEY`: Use OpenAI's models. There is no need to use Ollama if this is supplied.
   - **Default**: `None`
 - `ROOT_DIRECTORY`: Helpful if you want to run the docker container in a different terminal than your Vue repository
