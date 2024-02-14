@@ -36,7 +36,24 @@ docker run -d \
     -v $(pwd):/mount \
     -p 11434:11434 \
     -e MODEL=deepseek-coder:6.7b-instruct \
-    --name tea mlpierce22/tea:afad2e8
+    --name tea mlpierce22/tea:latest
+```
+
+3. Add a `<Tea>` component into your `Vue` template like you were creating a component and save. Generation should begin!
+4. When you have generated to your heart's content, you can pour the tea by adding the `pour` prop like `pour="ComponentName"` and it will generate a component with that name, replacing the Tea component.
+
+### Running via GPT 3.5
+
+1. Go to the root directory of your `Vue` project and run the following docker command (replace <Open-AI-Key> with your OpenAI key)
+
+```bash
+docker run -d \
+    --pull=always \
+    -v ollama:/root/.ollama \
+    -v $(pwd):/mount \
+    -p 11434:11434 \
+    -e OPENAI_KEY=<Open-AI-Key> \
+    --name tea mlpierce22/tea:latest
 ```
 
 3. Add a `<Tea>` component into your `Vue` template like you were creating a component and save. Generation should begin!
