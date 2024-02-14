@@ -8,15 +8,16 @@ Tea makes frontend Vue development as easy as making a cup of tea: just heat, st
 
 ## Demos
 
-### Running 100% locally on a Macbook Pro, 18GB GPU
+### Running 100% locally on a Macbook Pro M3, 18GB
 
-<video src="videos/local-only-generation.mp4" alt="Tea Demo with Local Model"></video>
+https://github.com/mlpierce22/tea/assets/35623597/311792cd-0a61-45e7-a89f-a155f5e3029d
+
 
 > The generation in this video is REAL TIME. I only sped up the sections of the video where I was typing!
 
 ### Running via GPT-3.5
 
-<video src="videos/gpt-3.5-generation.mp4" alt="Tea Demo with GPT-3.5"></video>
+https://github.com/mlpierce22/tea/assets/35623597/02aca769-fea5-4078-967a-15314b06ad26
 
 > The generation in this video is REAL TIME. I only sped up the sections of the video where I was typing!
 
